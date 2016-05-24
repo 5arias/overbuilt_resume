@@ -1,0 +1,31 @@
+/*
+ * Admin Styles
+ * Styling the back-end for our metaboxes
+ *
+ * @class RCMB
+ * @since overbuilt_resume 1.0.0
+ */
+
+.field-container{
+	margin-bottom: 10px;
+}
+.field-container label{
+	display: block;
+	margin-bottom: 5px;
+	width: 100%;
+}
+.field-container input,
+.field-container textarea,
+.field-container select{
+	width: 100%;
+}
+
+.field-container img {
+	max-height: 150px;
+	max-width: 150px;
+}
+
+.field-container input[type="button"] {
+	display: block;
+	width: auto;
+}
