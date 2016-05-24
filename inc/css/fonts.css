@@ -1,0 +1,25 @@
+/*
+*
+* Font-Face Import for all locally hosted fonts
+* Should consider moving to a CDN
+*
+* @since overbuilt_resume 1.0.0
+*
+*/
+
+
+
+/*=====================================================================================
+  "Norwester" provided by Jamie Wilson
+  @link http://jamiewilson.io/norwester/
+======================================================================================*/
+@font-face {
+    font-family: 'Norwester';
+    src: url('../fonts/norwester/norwester.eot');
+    src: url('../fonts/norwester/norwester.eot?#iefix') format('embedded-opentype'),
+         url('../fonts/norwester/norwester.woff') format('woff'),
+         url('../fonts/norwester/norwester.ttf') format('truetype'),
+         url('../fonts/norwester/norwester.svg#norwester') format('svg');
+    font-weight: normal;
+    font-style: normal;
+}

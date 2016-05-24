@@ -1,0 +1,102 @@
+/*
+Theme Name: Overbuilt Single Page Resume
+Theme URI: https://www.github.com/5arias/overbuilt-resume
+Author: Stephen Brody
+Author URI: https://www.stephenbrody.com
+Description: Needlessly Overbuilt theme to show my wordpress and PHP skills using Foundation 6
+Version: 1.0.0
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: overbuilt_resume
+Tags: 
+
+This theme, like WordPress, is licensed under the GPL.
+
+Overbuilt Resume is based on Underscores http://underscores.me/, (C) 2012-2016 Automattic, Inc.
+Underscores is distributed under the terms of the GNU GPL v2 or later.
+
+*/
+
+
+/*=====================================================================================
+  Media Query Breakpoints
+======================================================================================*/
+
+/* Small only - max-width 640px */
+@media only screen and (max-width: 40em) { }
+
+/* Medium and up - min-width: 641px */
+@media only screen and (min-width: 40.063em) { }
+
+/* Medium only - max-width: 1024px */
+@media only screen and (min-width: 40.063em) and (max-width: 64em) { }
+/* Large and up - min-width: 1025px */
+@media only screen and (min-width: 64.063em) { } 
+
+/* Large only - max-width: 1440px */
+@media only screen and (min-width: 64.063em) and (max-width: 90em) { }
+
+/* XLarge and up - min-width: 1441px */
+@media only screen and (min-width: 90.063em) { }
+
+/* XLarge only - max-width: 1920px */
+@media only screen and (min-width: 90.063em) and (max-width: 120em) { }
+
+/* XXLarge and up - min-width: 1921px */
+@media only screen and (min-width: 120.063em) { } 
+
+
+
+/*=====================================================================================
+  General Styles
+======================================================================================*/
+
+.valign-wrapper {
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-align-items: center;
+	-ms-flex-align: center;
+	align-items: center;
+}
+
+.valign-wrapper .valign { display: block; width: 100%;}
+
+
+
+
+/*=====================================================================================
+  Banner
+======================================================================================*/
+
+#banner { 
+	height: 100vh;
+	width: 100%;
+	padding: 0 10%;
+	text-align: right;
+	background-color: #000;
+	background-size: contain;
+	-moz-background-size: contain;
+	-webkit-background-size: contain;
+	background-position: top left bottom;
+	background-repeat: no-repeat;
+}
+
+.site-branding { height: inherit; text-transform: uppercase; }
+.site-branding h1 { color: #fff; font-size: 5rem; line-height: 1; margin-bottom: 0; }
+.site-branding h2 { color: #333; font-size: 1.75rem; }
+
+
+/* XLarge and up - min-width: 1441px */
+@media only screen and (min-width: 90.063em) { 
+	#banner { padding: 0 20%; }
+}
+
+/*=====================================================================================
+  Banner
+======================================================================================*/
+
+#about { padding: 5rem 0;}
+
+
+
