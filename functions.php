@@ -10,7 +10,7 @@
 
 /*=====================================================================================
   Initialize Theme Setup
-  @since overbuilt_resume 1.0.0
+  @since overbuilt_resume 0.1.0
 ======================================================================================*/
 require('inc/theme_setup.php');
 
@@ -18,7 +18,7 @@ require('inc/theme_setup.php');
 
 /*=====================================================================================
   Custom Classes
-  @since overbuilt_resume 1.0.0
+  @since overbuilt_resume 0.1.0
 ======================================================================================*/
 require('inc/classes/cpt.php');
 require('inc/classes/metabox.php');
@@ -27,7 +27,7 @@ require('inc/classes/metabox.php');
 
 /*=====================================================================================
   Enqueue our fonts  
-  @since overbuilt_resume 1.0.0
+  @since overbuilt_resume 0.1.0
 ======================================================================================*/
 function overbuilt_resume_fonts() {
 	//Fonts
@@ -44,7 +44,7 @@ add_action( 'wp_enqueue_scripts', 'overbuilt_resume_fonts' );
 /*=====================================================================================
   Add Custom Contact Fields to User Profile
   @template-part 'contact.php'
-  @since overbuilt_resume 1.0.0
+  @since overbuilt_resume 0.1.0
 ======================================================================================*/
 
 function add_user_contact_methods( $user_contact ) {
@@ -65,7 +65,7 @@ add_filter( 'user_contactmethods', 'add_user_contact_methods' );
 /*=====================================================================================
   Add Extra "About Me" Fields to User Profile
   @template-part 'about.php'
-  @since overbuilt_resume 1.0.0
+  @since overbuilt_resume 0.1.0
 ======================================================================================*/
 
 /* Add Extra "About" Fields to the Profile Page
