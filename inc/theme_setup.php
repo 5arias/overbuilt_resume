@@ -3,7 +3,7 @@
  * Resume functions and definitions.
  *
  * @package Overbuilt_Resume
- * @since overbuilt_resume 1.0.0
+ * @since overbuilt_resume 0.1.0
  *
  * Thanks to the following sites for some great WP clean up functions.
  * @Matteo Spinelli - http://cubiq.org/clean-up-and-optimize-wordpress-for-your-next-theme
@@ -58,7 +58,7 @@ add_action( 'after_setup_theme', 'overbuilt_resume_setup' );
 
 /*=====================================================================================
   The default wordpress head is a mess. Let's clean it up by removing all the junk we don't need.
-  @since overbuilt_resume 1.0.0
+  @since overbuilt_resume 0.1.0
 ======================================================================================*/
 function overbuilt_resume_head_cleanup() {
 	
@@ -106,7 +106,7 @@ function overbuilt_resume_head_cleanup() {
 /*=====================================================================================
   Remove Query Strings from Static Resources to prevent issues with caching and CDNs
   @link https://www.keycdn.com/blog/speed-up-wordpress/#caching
-  @since overbuilt_resume 1.0.0
+  @since overbuilt_resume 0.1.0
 ======================================================================================*/
 function _remove_script_version( $src ){
 	$parts = explode( '?ver', $src );
@@ -122,7 +122,7 @@ add_filter( 'style_loader_src', '_remove_script_version', 15, 1 );
 
 /*=====================================================================================
   Remove hAtom filters from content container
-  @since overbuilt_resume 1.0.0
+  @since overbuilt_resume 0.1.0
 ======================================================================================*/
 function remove_add_mod_hatom_data() {
     remove_filter( 'the_content', 'add_mod_hatom_data' );
@@ -136,7 +136,7 @@ add_action( 'wp_loaded', 'remove_add_mod_hatom_data' );
 
 /*=====================================================================================
   Enqueue our scripts and styles
-  @since overbuilt_resume 1.0.0
+  @since overbuilt_resume 0.1.0
 ======================================================================================*/
 function overbuilt_resume_scripts() {
 	//CSS
@@ -160,7 +160,7 @@ add_action( 'wp_enqueue_scripts', 'overbuilt_resume_scripts' );
 
 /*=====================================================================================
   Custom template tags for this theme.
-  @since overbuilt_resume 1.0.0
+  @since overbuilt_resume 0.1.0
 ======================================================================================*/
 require get_template_directory() . '/inc/template-tags.php';
 
