@@ -1,0 +1,1 @@
+jQuery(document).ready(function($){var l=$("#skill_level"),n=$(".range__value");n.html(l.val()+"%"),l.on("input",function(){n.html(l.val()+"%")})});
