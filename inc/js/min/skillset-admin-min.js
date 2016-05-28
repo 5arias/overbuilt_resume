@@ -1,1 +1,1 @@
-jQuery(document).ready(function($){var l=$("#skill_level"),n=$(".range__value");n.html(l.val()+"%"),l.on("input",function(){n.html(l.val()+"%")})});
+jQuery(document).ready(function($){var l=$("#skill_level"),t=$(".range__value");t.html(l.val()+"%"),l.on("input",function(){t.html(l.val()+"%")});var a={target:"#add_skill_response"};$("#add_skill").submit(function(){return $(this).ajaxSubmit(a),!1})});
