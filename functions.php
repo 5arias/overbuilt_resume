@@ -23,6 +23,7 @@ require('inc/theme_setup.php');
 require('inc/classes/cpt.php');
 require('inc/classes/metabox.php');
 require('inc/classes/skillset.php');
+require('inc/classes/skillset_list_table.php');
 
 
 
