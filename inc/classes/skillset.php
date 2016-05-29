@@ -221,9 +221,9 @@ class Skillset {
 					<span class="range__value">0</span>
 				</div>
 				<label for="submit">&nbsp;</label>
-				<?php wp_nonce_field( 'submit_skill_ajax', 'submit_skill_ajax_nonce' ); ?>
+				<?php //wp_nonce_field( 'submit_skill_ajax', 'submit_skill_ajax_nonce' ); ?>
 				<input type="hidden" name="action" id="action" value="submit_skill_ajax">
-				<input type="submit" value="Add Skill" class="button button-primary button-large">
+				<input type="submit" value="Add Skill" id="submit_skillset_button" class="button button-primary button-large">
 			</form>
 			<div id="add_skill_response"></div>
 		</div><!-- .wrap Form - Add Skill -->
@@ -235,7 +235,8 @@ class Skillset {
 							<form method="post">
 								<?php
 								$this->skills_obj->prepare_items();
-								$this->skills_obj->display(); ?>
+								$this->skills_obj->display(); 
+								?>
 							</form>
 						</div>
 					</div>
@@ -301,8 +302,8 @@ class Skillset {
 	    $nonce = $_POST['submit_skill_ajax_nonce'];
 	    
 	    // Verify nonce and user permissions
-	    if ( !wp_verify_nonce( $nonce, 'submit_skill_ajax' ) || !current_user_can('manage_options'))
-			wp_die ( 'Sorry, You do not have permission to submit skills.');
+	    //if ( !wp_verify_nonce( $nonce, 'submit_skill_ajax' ) || !current_user_can('manage_options'))
+		//	wp_die ( 'Sorry, You do not have permission to submit skills.');
 		
 		//Get User ID
 		$user_id = get_current_user_id();
@@ -320,10 +321,10 @@ class Skillset {
 		//Try creating a new skill!
 		//NOTE Need to add error handling.....
 		$this->insert_skill_to_db( $user_id, $meta );
-		$message = 'New skill has been added!';
-		echo $message;
 		
-		wp_die();
+		$message = 'Successfully added!';
+		
+		wp_die( wp_json_encode($message) );
 		
     }
     
