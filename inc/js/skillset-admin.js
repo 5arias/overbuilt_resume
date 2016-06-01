@@ -189,6 +189,7 @@ list.init();
 			orderby: list.__query( query, 'orderby' ) || 'name'
 		};
 		list.update( data );
+		value.html(range.val() + '%');
 		$('#submit_skillset_button').removeAttr("disabled", "disabled");
 	}
 	

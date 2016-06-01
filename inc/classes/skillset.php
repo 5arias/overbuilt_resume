@@ -6,7 +6,7 @@
  *
  * @author  Stephen Brody
  * @link    http://stephenbrody.com
- * @version 0.1.0
+ * @version 0.2.0
  * @license http://www.opensource.org/licenses/mit-license.html MIT License
  */
  
@@ -14,24 +14,52 @@ add_action( 'init', array( 'Skillset', 'init' ));
  
 class Skillset {
 	
-	// class instance
+	/**
+     * Holds the class instance for singleton style instantiation.
+     *
+     * @var self
+     */
 	static $instance;
-
-	// customer WP_List_Table object
-	public $skills_obj;
 	
-	//Create slug for use in menu and enqueueing scripts
+	
+	/**
+     * Designates the current database table version for this class
+     *
+     * @var string
+     */
+	public $skillset_db_version = '0.3.2';
+
+
+	/**
+     * Class object for displaying the custom WP_List_Table for this class.
+     *
+     * @object class Skillset_List_Table.
+     */
+	public $skills_table;
+	
+
+	/**
+     * Create slug for use in menu and enqueueing scripts
+     *
+     * @var string __CLASS__.
+     */
 	protected $slug = 'skillset';
 	
-	// store table name for CRUD use - assigned on __construct
+	
+	/**
+     * Store table name for CRUD use - assigned on __construct().
+     *
+     * @var string $prefix + $slug.
+     */
 	private $table_name;
+	
 	
 	/**
      * Init
      *
-     * Instantiates the class on WP init
+     * Instantiates the class on WP init and ensures a single instance only
      *
-     * @var string $class The name of the class.
+     * @var string $instance
      */
 	public static function init() {
         
@@ -57,8 +85,11 @@ class Skillset {
     	//Create a new database table on theme activation
     	add_action('wp_loaded', array($this, 'create_skillset_db_table'));
     	
+    	//Update database table on load if new version exists.
+    	add_action( 'wp_loaded', array($this, 'update_skillset_db_table' ));
+    	
     	//Set Screen Options Filter
-    	add_filter( 'set-screen-option', [ __CLASS__, 'set_screen' ], 10, 3 );
+    	add_filter( 'set-screen-option', array( $this, 'set_screen' ), 10, 3 );
     	
     	//Create Admin Menu page
     	add_action('admin_menu', array($this, 'add_admin_menu_pages'));
@@ -66,24 +97,19 @@ class Skillset {
     	//AJAX Submission for Skill Form
     	add_action( 'wp_ajax_submit_skill_ajax', array ( $this, 'submit_skill_ajax' ));
     	
-    	//AJAX Submission for Skill Form
+    	//AJAX Update for X-Editable Skill Field Data
     	add_action( 'wp_ajax_update_skill_ajax', array ( $this, 'update_skill_ajax' ));
     	
     }
     
     
-    /**
-     * Autoload
-     *
-     * dynamically autoload undefined classes
-     *
-     *
-	function __autoload() {
-		require("skillset_list_table.php");
-	}
-	*/
+
     
-    // Create $table_name
+    /**
+     * Generates the table name - assigned on __construct().
+     *
+     * @return string $prefix + $slug.
+     */
     private function generate_table_name() {
 	    global $wpdb;
 	    return $wpdb->prefix . $this->slug;
@@ -92,24 +118,24 @@ class Skillset {
     
     
     /**
-     * Create Skillset Table
+     * Create Skillset Database Table
      *
      * Checks on activation if the _skillset table exists
      * and creates a new table if it does not.
      *
      * @method callable create_skillset_table
      *
-     * NOTE TO SELF: at some point you should probably add columns for updated_by and date_updated when you create the update functions.
-     * Don't forget to add a table update and versioning function too...
      */
     public function create_skillset_db_table() {
 	     
-	    global $wpdb;
+	    // Set table_name property as variable
 		$table_name = $this->table_name;
+		 
+		global $wpdb; 
 		 
 		if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
 			
-			//table not in database? Create new table
+			//table not in database? Create new table!
 			$charset_collate = $wpdb->get_charset_collate();
 			
 			$sql = "CREATE TABLE $table_name (
@@ -122,21 +148,76 @@ class Skillset {
 				UNIQUE KEY id (id)
 			) $charset_collate;";
 			
-			require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+			if ( ! function_exists('dbDelta') ) {
+            	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        	}
+        	
+        	// Create DB Table
 			dbDelta( $sql );
+			
+			// DB Version Control
+			add_option( 'res_skillset_db_version', '0.1.0' );
 		 	
 		}
 	     
     }
     
     
-    //Set Screen Options
-    public static function set_screen( $status, $option, $value ) {
-		return $value;
+    /**
+     * Update Skillset Database Table
+     *
+     * Checks the stored version in wp_options and updates the _skillset table
+     * if it does not match the current version designated in the $skillset_db_version class property.
+     *
+     * @var string $skillset_db_version
+     *
+     */
+    public function update_skillset_db_table() {
+	    
+	    // Set table_name property as variable
+		$table_name = $this->table_name;
+	    
+    	// Get current DB version from property
+		$current_db_version = $this->skillset_db_version;
+
+		// If database version is not the same
+		if( $current_db_version != get_option('res_skillset_db_version') ) {
+			
+        	global $wpdb;
+
+			$charset_collate = $wpdb->get_charset_collate();
+
+			$sql = "CREATE TABLE $table_name (
+				id int(4) NOT NULL AUTO_INCREMENT,
+				user_id mediumint(9) NOT NULL,
+				name varchar(55) NOT NULL,
+				level int(3) NOT NULL,
+				date_created datetime NOT NULL,
+				date_updated datetime NOT NULL,
+				updated_by mediumint(9) NOT NULL,
+				UNIQUE KEY id (id)
+			) $charset_collate;";
+
+        if ( ! function_exists('dbDelta') ) {
+            require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        }
+		
+		// Update DB Table
+        dbDelta( $sql );
+		
+		// Update DB version
+        update_option( 'res_skillset_db_version', $current_db_version );
+    	}
 	}
      
      
-    //Add and render admin page
+    /**
+     * Load Admin Menu Page
+     *
+     * sets page config and loads dependencies for screen options, JS, and CSS
+     *
+     * @return void
+     */
     public function add_admin_menu_pages() {
 	    
 	    $hook = add_menu_page(
@@ -148,18 +229,34 @@ class Skillset {
 			'dashicons-chart-bar',					// menu_icon
 			21										// position
 		);
-
+		
+		// Load screen option parameters / args
 		add_action( "load-$hook", array ( $this, 'screen_option' ) );
 		
+		// make sure the jqueryui style callback is used on this page only
 		add_action( "admin_print_styles-$hook", array( $this, 'load_jquery_ui' ) );
 		
-		// make sure the style callback is used on our page only
+		// make sure the style callback is used on this page only
 		add_action( "admin_print_styles-$hook", array( $this, 'enqueue_style' ) );
 		
-		// make sure the script callback is used on our page only
+		// make sure the script callback is used on this page only
 		add_action( "admin_print_scripts-$hook", array( $this, 'enqueue_script' ) );
 		
     }
+    
+    
+    /**
+     * Set Screen
+     *
+     * applies modified user submitted screen options to current admin screen
+     *
+     * @return mixed updated option
+     */
+    public function set_screen( $status, $option, $value ) {
+		return $value;
+	}
+    
+    
     /**
 	 * Load jQuery UI Smoothness stylesheet
 	 *
@@ -179,7 +276,7 @@ class Skillset {
     
     
     /**
-	 * Load stylesheet
+	 * Load Stylesheets
 	 *
 	 * @return void
 	 */
@@ -202,17 +299,18 @@ class Skillset {
 		// Load jQuery Ajax Form Plugin
 		wp_enqueue_script( 'jquery-form' );
 		
-		
 		// Load X-Editable
 		wp_enqueue_script( $this->slug . '_xedit', get_template_directory_uri() . '/inc/js/jqueryui-editable.min.js', array('jquery', 'jquery-ui-button', 'jquery-ui-tooltip'), FALSE, TRUE);
 		
-		// Sckillset class scripts
+		// Skillset class scripts
 		wp_enqueue_script( $this->slug . '_js', get_template_directory_uri() . '/inc/js/skillset-admin.js', array('jquery'), FALSE, TRUE);
 	}
 	
 	
 	/**
 	 * Screen options
+	 *
+	 * Sets default screen options and officially instantiates the skillset list table
 	 */
 	public function screen_option() {
 
@@ -224,145 +322,220 @@ class Skillset {
 		];
 
 		add_screen_option( $option, $args );
-
-		$this->skills_obj = new Skillset_List_Table();
+		
+		// Create new table!
+		$this->skills_table = new Skillset_List_Table();
 	}
     
     
-    //Render admin page via template part..
+    /**
+	 * Render Admin Page Content
+	 *
+	 * This was originally a separate template file but I found it easier to include it here instead. 
+	 * It might be worth breaking it out later on but it's minimal HTML right now, so nbd.
+	 *
+	 * @return html
+	 */
     public function render_admin_page() {
+	    
+	    // Verify User Permissions
 	    if(!current_user_can('manage_options')) { ?>
 			<p>You do not have sufficient permissions to access this page</p>
 			
-		<?php } else { 
-			//echo get_template_part('template-parts/' . $this->slug, 'admin');
-		?>
+		<?php } else { ?>
 		
 		<div class="wrap">
-			<h1><?php global $title; echo __($title, 'overbuilt-resume'); ?></h1>
-			<h2><?php echo current_time('mysql'); ?></h2>
-			<div class="wrap">
-			<form id="add_skill" method="post" action="<?php echo admin_url('admin-ajax.php'); ?>">
-				<div class="field-wrap">
-					<label for="skill_name">Skill Name</label>
-					<input type="text" name="skill_name" id="skill_name" value="">
-				</div>
-				<div class="field-wrap ">
-					<label for="skill_level">How proficient are you?</label>
-					<input type="range" name="skill_level" id="skill_level" value="50" min="0" max="100" step="1">
-					<span class="range__value">0</span>
-				</div>
-				<label for="submit">&nbsp;</label>
-				<?php //wp_nonce_field( 'submit_skill_ajax', 'submit_skill_ajax_nonce' ); ?>
-				<input type="hidden" name="action" id="action" value="submit_skill_ajax">
-				<input type="submit" value="Add Skill" id="submit_skillset_button" class="button button-primary button-large">
-			</form>
-			<div id="add_skill_response"></div>
-		</div><!-- .wrap Form - Add Skill -->
-
-		<div id="poststuff">
-				<div id="post-body" class="metabox-holder columns-2">
+			<h2><?php global $title; echo __($title, 'overbuilt-resume'); ?></h2>
+			
+			<div id="poststuff">
+				<div id="post-body" class="metabox-holder">
 					<div id="post-body-content">
-						<div class="meta-box-sortables ui-sortable">
-							<form method="post">
-								<?php
-								$this->skills_obj->prepare_items();
-								$this->skills_obj->display(); 
-								?>
-							</form>
-						</div>
-					</div>
-				</div>
-				<br class="clear">
-			</div>
-	</div>
+			
+						<form id="add_skill" method="post" action="<?php echo admin_url('admin-ajax.php'); ?>">
+							<div class="field-wrap">
+								<label for="skill_name">Skill Name</label>
+								<input type="text" name="skill_name" id="skill_name" value="">
+							</div>
+							<div class="field-wrap ">
+								<label for="skill_level">How proficient are you?</label>
+								<input type="range" name="skill_level" id="skill_level" value="50" min="0" max="100" step="1">
+								<span class="range__value">0</span>
+							</div>
+							
+							<label for="submit">&nbsp;</label>
+							<?php wp_nonce_field( 'submit_skill_ajax', 'submit_skill_ajax_nonce' ); ?>
+							<input type="hidden" name="action" id="action" value="submit_skill_ajax">
+							<input type="submit" value="Add Skill" id="submit_skillset_button" class="button button-primary button-large">
+						</form>
+						<div id="add_skill_response"></div>
+					</div><!-- #post-body-content -->
+					
+					<div class="meta-box-sortables ui-sortable">
+						<form method="post">
+							<?php
+							$this->skills_table->prepare_items();
+							$this->skills_table->display(); 
+							?>
+						</form>
+					</div><!-- .metabox-sortables -->
+				</div><!-- #post-body -->
+			</div><!-- #poststuff -->
+		</div><!-- .wrap -->
 		
 		<?php } 
     }
     
     
     
-    // Insert new skill into database
-    public function insert_skill_to_db( $user_id, $meta ) {
+    /**
+	 * Insert Skill into DB
+	 *
+	 * Adds a new skill w/ meta to the database.
+	 * Data is sanitized within this method for added security
+	 * 
+	 * @param array $meta
+	 */
+    protected function insert_skill_to_db( $meta ) {
 	    
-	    // Make sure that we are provided a user ID and a meta array
-	    if(isset($user_id) && !empty($meta)){
+	    // Make sure that we are provided a meta array
+	    if( !is_array($meta) ) return false;
+		    
+		//Get User ID
+		$user_id = get_current_user_id();
+		
+		//Get and Sanitize Post Data
+		$name  = sanitize_text_field( $meta['name'] );
+		$level = absint( $meta['level'] );
 			
-			global $wpdb;
+		//Insert Entry into Database Table
+		global $wpdb;
 			
-			//Insert Entry into Database Table
-			$wpdb->insert( 
-				$this->table_name, 
-				array( 
-					'user_id' 		=> $user_id,
-					'name' 			=> $meta['name'],
-					'level' 	 	=> $meta['level'],
-					'date_created'	=> current_time('mysql'),
-					'date_updated' => current_time('mysql')
-				)
-			);
-		}
+		$wpdb->insert( 
+			$this->table_name, 
+			array( 
+				'user_id' 		=> $user_id,
+				'updated_by'	=> $user_id,
+				'name' 			=> $name,
+				'level' 	 	=> $level,
+				'date_created'	=> current_time('mysql'),
+				'date_updated'  => current_time('mysql')
+			)
+		);
 	    
     }
     
     
-    // AJAX function to add new skill to db
+    /**
+	 * Update Skill Field
+	 *
+	 * Updates a single field for a given skill
+	 * primarily used during ajax update via X-Editable
+	 * Data is sanitized within this method for added security
+	 * 
+	 * @var int $id 
+	 * @var string $column
+	 * @var string|int $value
+	 */
+    protected function update_skill_field( $id, $column, $value) {
+	    
+	    // Sanitize the data!
+	    $id = absint($id);
+	    $column = sanitize_text_field($column);
+	    
+	    switch($column){
+		    case 'name':
+		    	$value = sanitize_text_field($value);
+		    	break;
+		    case 'level':
+		    	$value = absint($value);
+		    	break;
+	    }
+	    
+	    //Get current user ID
+	    $user_id = get_current_user_id();
+	    
+	    //Update the field in the DB
+	    global $wpdb;
+		$wpdb->update(
+			$this->table_name,
+			array(
+				$column => $value,
+				'date_updated' => current_time('mysql'),
+				'update_by' => $user_id
+			),
+			array(
+				'id' => $id
+			)
+		);
+    }
+    
+    
+    /**
+	 * AJAX Skill Submission
+	 *
+	 * Ajax callback for the "add skill" form
+	 * checks permissions then wraps meta in an array for insertion into the db
+	 * 
+	 * @var array $meta
+	 * @return string $message
+	 */
     public function submit_skill_ajax() {
 	    
 	    $nonce = $_POST['submit_skill_ajax_nonce'];
 	    
 	    // Verify nonce and user permissions
-	    //if ( !wp_verify_nonce( $nonce, 'submit_skill_ajax' ) || !current_user_can('manage_options'))
-		//	wp_die ( 'Sorry, You do not have permission to submit skills.');
-		
-		//Get User ID
-		$user_id = get_current_user_id();
-		
-		//Get and Sanitize Post Data
-		$skill_name  = sanitize_text_field( $_POST[ 'skill_name' ] );
-		$skill_level = absint( $_POST[ 'skill_level' ] );
+	    if ( !wp_verify_nonce( $nonce, 'submit_skill_ajax' ) || !current_user_can('manage_options'))
+			wp_die ( 'Sorry, You do not have permission to submit skills.');
 		
 		//Set data into array for creating a skill
 		$meta = array(
-			'name'	=> $skill_name,
-			'level' => $skill_level
+			'name'	=> $_POST[ 'skill_name' ],
+			'level' => $_POST[ 'skill_level' ]
 		);
 		
 		//Try creating a new skill!
-		//NOTE Need to add error handling.....
-		$this->insert_skill_to_db( $user_id, $meta );
+		$new_skill = $this->insert_skill_to_db( $meta );
 		
-		$message = 'Successfully added!';
+		// Basic error handling
+		if ( $new_skill === false )
+			$message = "Oops! Unable to add new skill, please try again.";
+		else 
+			$message = "Success! You've added a new skill!";
 		
 		wp_die( wp_json_encode($message) );
 		
     }
     
-    // AJAX function to add new skill to db
-    public function update_skill_ajax(){
-	    if($_REQUEST){
-		 	
-		 	//Get variables
-			$id = $_POST['pk'];
-			$column = $_POST['name'];
-			$value	= $_POST['value'];
-			
-			//Update field/column
-			global $wpdb;
-			$wpdb->update(
-				$this->table_name,
-				array(
-					$column => $value,
-					'date_updated' => current_time('mysql')
-				),
-				array(
-					'id' => $id
-				)
-			);
+    /**
+	 * AJAX Update Skill Data
+	 *
+	 * Ajax callback for inline editing via X-Editable
+	 * 
+	 * @var int $id
+	 * @var string $column
+	 * @var string|int $value
+	 * @return string $message
+	 *
+	 * NOTE TO SELF: Consider adding a nonce field for verification (especially since they are used everywhere else).
+	 */
+    public function update_skill_ajax() {
+	    
+	    if ( !current_user_can('manage_options'))
+			wp_die ( wp_json_encode('Sorry, You do not have permission to update skills.') );
 		
-		    
-		    $message = 'Successfully updated!';
-	    }
+		//Get variables
+		$id = $_POST['pk'];
+		$column = $_POST['name'];
+		$value	= $_POST['value'];
+			
+		//Update field/column data
+		$update = $this->update_skill_field($id, $column, $value);
+			
+		// Basic error handling
+		if ( $update === false )
+			$message = "Oops! Unable to update your skill, please try again.";
+		else 
+			$message = "Success! Your skill has been updated!";
 		
 		wp_die( wp_json_encode($message) );
     }
