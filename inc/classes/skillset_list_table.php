@@ -124,6 +124,8 @@ class Skillset_List_Table extends WP_List_Table {
 		switch ( $column_name ) {
 			case 'name':
 			case 'level':
+			case 'date_created':
+			case 'date_updated':
 				return $item[ $column_name ];
 			default:
 				return print_r( $item, true ); //Show the whole array for troubleshooting purposes
@@ -155,10 +157,32 @@ class Skillset_List_Table extends WP_List_Table {
 
 		$delete_nonce = wp_create_nonce( 'sp_delete_skill' );
 
-		$title = '<strong>' . $item['name'] . '</strong>';
+		$title = '<strong><a href="#" class="xedit" data-type="text" data-name="name" data-pk="' . $item['id'] . '" >' . $item['name'] . '</a></strong>';
 
 		$actions = [
+			'edit'   => sprintf('<a href="#" class="xedit-button" data-type="%s" data-pk="%d" >Edit</a>', 'text', absint( $item['id'] )),
 			'delete' => sprintf( '<a href="?page=%s&action=%s&skill=%s&_wpnonce=%s">Delete</a>', esc_attr( $_REQUEST['page'] ), 'delete', absint( $item['id'] ), $delete_nonce )
+		];
+
+		return $title . $this->row_actions( $actions );
+	}
+	
+	
+	/**
+	 * Method for skill_level column (aka Proficiency)
+	 *
+	 * @param array $item an array of DB data
+	 *
+	 * @return string
+	 */
+	function column_level( $item ) {
+
+		//$delete_nonce = wp_create_nonce( 'sp_delete_skill' );
+
+		$title = '<a href="#" class="xedit" data-type="range" data-name="level" data-pk="' . $item['id'] . '" >' . $item['level'] . '</a>';
+
+		$actions = [
+			'edit'   => sprintf('<a href="#" class="xedit-button" data-type="%s" data-pk="%d">Edit</a>', 'range', absint( $item['id'] ))
 		];
 
 		return $title . $this->row_actions( $actions );
@@ -175,7 +199,8 @@ class Skillset_List_Table extends WP_List_Table {
 			'cb'      => '<input type="checkbox" />',
 			'name'    => __( 'Name', 'sp' ),
 			'level'   => __( 'Proficiency', 'sp' ),
-			'date_created' => __( 'Date Added', 'sp' )
+			'date_created' => __( 'Date Added', 'sp' ),
+			'date_updated' => __( 'Date Updated', 'sp' )
 		];
 
 		return $columns;
@@ -191,7 +216,8 @@ class Skillset_List_Table extends WP_List_Table {
 		$sortable_columns = array(
 			'name' => array( 'name', true ),
 			'level' => array( 'level', false ),
-			'date_created' => array( 'date_created', false )
+			'date_created' => array( 'date_created', false ),
+			'date_updated' => array( 'date_updated', false )
 		);
 
 		return $sortable_columns;
