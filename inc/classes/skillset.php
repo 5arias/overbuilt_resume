@@ -346,7 +346,6 @@ class Skillset {
 		
 		<div class="wrap">
 			<h2><?php global $title; echo __($title, 'overbuilt-resume'); ?></h2>
-			<p><?php print_r(self::getAll()); ?></p>
 			<div id="poststuff">
 				<div id="post-body" class="metabox-holder">
 					<div id="post-body-content">
