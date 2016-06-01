@@ -119,15 +119,21 @@
      */
 	public function rcmb_enqueue_admin_scripts(){
 		
-		//Enqueue our admin stylesheet
-		wp_enqueue_style('rcmb_admin_styles', get_template_directory_uri() . '/inc/css/metabox_admin.css');
+		//Verify post_type so scripts only load for that page
+		//so we don't clog up the admin panel with unused scripts.
+		global $post_type;
+		if( $this->post_type == $post_type ){
 		
-		//Verify image field is being included
-		if (in_array('image', $this->fields)) {
+			//Enqueue our admin stylesheet
+			wp_enqueue_style('rcmb_admin_styles', get_template_directory_uri() . '/inc/css/metabox_admin.css');
+		
+			//Verify image field is being included
+			if (in_array('image', $this->fields)) {
 			
-			//Enqueue wp.media and custom loader script
-			wp_enqueue_media();
-			wp_enqueue_script('add_meta_image', get_template_directory_uri() . '/inc/js/add_media_uploader.js', array('jquery'));
+				//Enqueue wp.media and custom loader script
+				wp_enqueue_media();
+				wp_enqueue_script('add_meta_image', get_template_directory_uri() . '/inc/js/add_media_uploader.js', array('jquery'));
+			}
 		}
 		
 	}
