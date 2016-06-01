@@ -460,7 +460,7 @@ class Skillset {
 			array(
 				$column => $value,
 				'date_updated' => current_time('mysql'),
-				'update_by' => $user_id
+				'updated_by' => $user_id
 			),
 			array(
 				'id' => $id
