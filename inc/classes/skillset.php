@@ -34,8 +34,6 @@ class Skillset {
      * @var string $class The name of the class.
      */
 	public static function init() {
-        //$class = __CLASS__;
-        //new $class;
         
         if ( ! isset( self::$instance ) ) {
 			self::$instance = new self();
@@ -67,6 +65,9 @@ class Skillset {
     	
     	//AJAX Submission for Skill Form
     	add_action( 'wp_ajax_submit_skill_ajax', array ( $this, 'submit_skill_ajax' ));
+    	
+    	//AJAX Submission for Skill Form
+    	add_action( 'wp_ajax_update_skill_ajax', array ( $this, 'update_skill_ajax' ));
     	
     }
     
@@ -117,6 +118,7 @@ class Skillset {
 				name varchar(55) NOT NULL,
 				level int(3) NOT NULL,
 				date_created datetime NOT NULL,
+				date_updated datetime NOT NULL,
 				UNIQUE KEY id (id)
 			) $charset_collate;";
 			
@@ -147,53 +149,83 @@ class Skillset {
 			21										// position
 		);
 
-		add_action( "load-$hook", [ $this, 'screen_option' ] );
+		add_action( "load-$hook", array ( $this, 'screen_option' ) );
+		
+		add_action( "admin_print_styles-$hook", array( $this, 'load_jquery_ui' ) );
 		
 		// make sure the style callback is used on our page only
-		add_action( "admin_print_styles-" . $this->slug, array ( $this, 'enqueue_style' ) );
-		do_action( "admin_print_styles-" . $this->slug, 'admin');
-		
-		// make sure the AJAX Form plugin script callback is used on our page only
-		add_action( "admin_print_scripts-" . $this->slug, array ( $this, 'enqueue_ajax_form' ));
+		add_action( "admin_print_styles-$hook", array( $this, 'enqueue_style' ) );
 		
 		// make sure the script callback is used on our page only
-		add_action( "admin_print_scripts-" . $this->slug, array ( $this, 'enqueue_script' ));
-		do_action( "admin_print_scripts-" . $this->slug, 'admin');
+		add_action( "admin_print_scripts-$hook", array( $this, 'enqueue_script' ) );
 		
     }
+    /**
+	 * Load jQuery UI Smoothness stylesheet
+	 *
+	 * @return void
+	 */
+    function load_jquery_ui() {
+    	global $wp_scripts;
+ 
+    	// get registered script object for jquery-ui
+    	$ui = $wp_scripts->query('jquery-ui-core');
+ 
+    	// tell WordPress to load the Smoothness theme from Google CDN
+    	$protocol = is_ssl() ? 'https' : 'http';
+    	$url = "$protocol://ajax.googleapis.com/ajax/libs/jqueryui/{$ui->ver}/themes/smoothness/jquery-ui.min.css";
+    	wp_enqueue_style('jquery-ui-smoothness', $url, false, null);
+	}
     
     
     /**
 	 * Load stylesheet
 	 *
-	 * @param string $location identifies whether to load on front end or admin panel
 	 * @return void
 	 */
-	public function enqueue_style( $location ) {
-		wp_enqueue_style( $this->slug . '_css', get_template_directory_uri() . '/inc/css/' . $this->slug . '-' . $location . '.css');
+	public function enqueue_style() {
+		
+		// Default Class Styles
+		wp_enqueue_style( $this->slug . '_css', get_template_directory_uri() . '/inc/css/skillset-admin.css');
+		
+		// X-Editable Styles
+		wp_enqueue_style( $this->slug . '_xedit', get_template_directory_uri() . '/inc/css/jqueryui-editable.css');
 	}
 	
 	/**
 	 * Load JavaScript
 	 *
-	 * @param string $location identifies whether to load on front end or admin panel
 	 * @return void
 	 */
-	public function enqueue_script( $location ){
+	public function enqueue_script(){
 		
-		// Enqueue script dynamically
-		wp_enqueue_script( $this->slug . '_js', get_template_directory_uri() . '/inc/js/' . $this->slug . '-' . $location . '.js', array('jquery'), FALSE, TRUE);
+		// Load jQuery Ajax Form Plugin
+		wp_enqueue_script( 'jquery-form' );
+		
+		
+		// Load X-Editable
+		wp_enqueue_script( $this->slug . '_xedit', get_template_directory_uri() . '/inc/js/jqueryui-editable.min.js', array('jquery', 'jquery-ui-button', 'jquery-ui-tooltip'), FALSE, TRUE);
+		
+		// Sckillset class scripts
+		wp_enqueue_script( $this->slug . '_js', get_template_directory_uri() . '/inc/js/skillset-admin.js', array('jquery'), FALSE, TRUE);
 	}
 	
 	
 	/**
-	 * Load jQuery Ajax Form Plugin
-	 *
-	 * @return void
+	 * Screen options
 	 */
-	public function enqueue_ajax_form(){
-		
-		wp_enqueue_script( 'jquery-form' );
+	public function screen_option() {
+
+		$option = 'per_page';
+		$args   = [
+			'label'   => 'Skills',
+			'default' => 5,
+			'option'  => 'skills_per_page'
+		];
+
+		add_screen_option( $option, $args );
+
+		$this->skills_obj = new Skillset_List_Table();
 	}
     
     
@@ -208,7 +240,7 @@ class Skillset {
 		
 		<div class="wrap">
 			<h1><?php global $title; echo __($title, 'overbuilt-resume'); ?></h1>
-		
+			<h2><?php echo current_time('mysql'); ?></h2>
 			<div class="wrap">
 			<form id="add_skill" method="post" action="<?php echo admin_url('admin-ajax.php'); ?>">
 				<div class="field-wrap">
@@ -249,24 +281,6 @@ class Skillset {
     }
     
     
-    /**
-	 * Screen options
-	 */
-	public function screen_option() {
-
-		$option = 'per_page';
-		$args   = [
-			'label'   => 'Skills',
-			'default' => 5,
-			'option'  => 'skills_per_page'
-		];
-
-		add_screen_option( $option, $args );
-
-		$this->skills_obj = new Skillset_List_Table();
-	}
-    
-    
     
     // Insert new skill into database
     public function insert_skill_to_db( $user_id, $meta ) {
@@ -283,12 +297,8 @@ class Skillset {
 					'user_id' 		=> $user_id,
 					'name' 			=> $meta['name'],
 					'level' 	 	=> $meta['level'],
-					'date_created'	=> current_time('mysql')
-				),
-				array(
-					'%d',
-					'%s',
-					'%d'
+					'date_created'	=> current_time('mysql'),
+					'date_updated' => current_time('mysql')
 				)
 			);
 		}
@@ -326,6 +336,35 @@ class Skillset {
 		
 		wp_die( wp_json_encode($message) );
 		
+    }
+    
+    // AJAX function to add new skill to db
+    public function update_skill_ajax(){
+	    if($_REQUEST){
+		 	
+		 	//Get variables
+			$id = $_POST['pk'];
+			$column = $_POST['name'];
+			$value	= $_POST['value'];
+			
+			//Update field/column
+			global $wpdb;
+			$wpdb->update(
+				$this->table_name,
+				array(
+					$column => $value,
+					'date_updated' => current_time('mysql')
+				),
+				array(
+					'id' => $id
+				)
+			);
+		
+		    
+		    $message = 'Successfully updated!';
+	    }
+		
+		wp_die( wp_json_encode($message) );
     }
     
     

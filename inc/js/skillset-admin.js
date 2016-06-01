@@ -31,10 +31,21 @@ var list = {
 	 * automatically by WordPress.
 	 */
 	init: function() {
-
-		// This will have its utility when dealing with the page number input
-		var timer;
-		var delay = 500;
+		
+		$('.xedit').editable({
+	    url	: '/wp-admin/admin-ajax.php?action=update_skill_ajax',
+	    mode : 'inline',
+	    success: function(response, newValue) {
+        	console.log(response);
+    		}
+    	});
+    	
+    	
+    	$('.xedit').on('shown', function() {
+        var input = $(document).find('.editable-input input').val();
+    	var output = $(document).find('.editable-input output');
+    	output.val(input);
+    	});
 
 		// Pagination links, sortable link
 		$('.tablenav-pages a, .manage-column.sortable a, .manage-column.sorted a').on('click', function(e) {
@@ -50,6 +61,11 @@ var list = {
 			};
 			list.update( data );
 		});
+		
+		
+		// This will have its utility when dealing with the page number input
+		var timer;
+		var delay = 500;
 
 		// Page number input
 		$('input[name=paged]').on('keyup', function(e) {
@@ -195,5 +211,23 @@ list.init();
         // always return false to prevent standard browser submit and page navigation 
         return false; 
     }); 
+    
+    
+    
+    
+    
+/*
+*	X-editable	
+*	   
+*/
+    $(document).on('click', '.xedit-button', function(e) {
+	    e.stopPropagation();
+	    
+    	var pk = $(this).attr('data-pk');
+    	var type = $(this).attr('data-type');
+    	
+    	$('.xedit[data-pk="'+ pk +'"][data-type="'+ type +'"]').editable('toggle');
+    });
+    
 	
 });
