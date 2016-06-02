@@ -22,13 +22,15 @@ require('inc/theme_setup.php');
 ======================================================================================*/
 require('inc/classes/cpt.php');
 require('inc/classes/metabox.php');
+require('inc/classes/skillset.php');
+require('inc/classes/skillset_list_table.php');
 
 
 
 /*=====================================================================================
   Enqueue our fonts  
   @since overbuilt_resume 0.1.0
-======================================================================================*/
+======================================================================================*
 function overbuilt_resume_fonts() {
 	//Fonts
 	//wp_enqueue_style('overbuilt_resume-opensans', '//fonts.googleapis.com/css?family=Open+Sans:300,600, 700' );
