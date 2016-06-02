@@ -22,16 +22,11 @@ require('inc/theme_setup.php');
 ======================================================================================*/
 require('inc/classes/cpt.php');
 require('inc/classes/metabox.php');
-<<<<<<< HEAD
 require('inc/classes/abilities.php');
 require('inc/classes/skillset.php');
 require('inc/classes/skillset_list_table.php');
 require('inc/classes/devtools.php');
 require('inc/classes/toolbox_list_table.php');
-=======
-require('inc/classes/skillset.php');
-require('inc/classes/skillset_list_table.php');
->>>>>>> origin/toolbox-and-abstract-classes
 
 
 
