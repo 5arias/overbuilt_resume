@@ -21,25 +21,20 @@ abstract class Abilities {
 * ============================================================================*/
 
 	/**
-     * Create __CLASS__ Database Table
+     * Define Database SQL Query
      *
-     * Checks on activation if the child __CLASS__ table exists
-     * and creates a new table if it does not.
+     * Defines the SQL query for the class database table.
      *
-     */
-    abstract public function create_db_table();
-    
-    
-    /**
-     * Update __CLASS__ Database Table
+     * It seemed pointlessly redundant to have separate query definitons for 
+     * both the create and update functions since create only runs if the table doesn't exist. 
+     * At least this way the theme will always be up to date with the correct schema.
      *
-     * Checks the stored version in wp_options and updates the _toolbox table
-     * if it does not match the current version designated in the $toolbox_db_version class property.
-     *
-     * @var string $toolbox_db_version
+     * @var string $charset_collate
+     * @property string $table_name
+     * @return string $sql
      *
      */
-    abstract public function update_db_table();
+    abstract protected function define_db_sql();
     
     
     /**
@@ -93,6 +88,14 @@ abstract class Abilities {
 	
 	
 	/**
+     * Store option name for class database version - assigned on __construct().
+     *
+     * @var string $table_name + _db_option
+     */
+	protected $db_version_option;
+	
+	
+	/**
      * Class slug for use in menu and enqueueing scripts
      * assigned on __construct()
      *
@@ -115,29 +118,21 @@ abstract class Abilities {
 *
 *	COMMON METHODS
 *
-* ============================================================================*/	
-	
-	/**
-     * Constructor
-     *
-     * Add database table, enqueue scripts/styles, etc, etc.
-     *
-     */
-    public function __construct() {
-    	
-    	//Create a new database table on theme activation
-    	//add_action('wp_loaded', array( $this, 'create_db_table'));
+* ============================================================================*/
+
+	public function __construct() {
+		//Create a new database table on theme activation
+    	add_action('wp_loaded', array( $this, 'create_db_table'));
     	
     	//Update database table on load if new version exists.
-    	//add_action( 'wp_loaded', array( $this, 'update_db_table' ));
+    	add_action( 'wp_loaded', array( $this, 'update_db_table' ));
     	
     	//Set Screen Options Filter
-    	//add_filter( 'set-screen-option', array( $this, 'set_screen' ), 10, 3 );
+    	add_filter( 'set-screen-option', array( $this, 'set_screen' ), 10, 3 );
     	
     	//Create Admin Menu page
-    	//add_action('admin_menu', array($this, 'add_admin_menu_page'));
-    	
-    }
+    	add_action('admin_menu', array($this, 'add_admin_menu_page'));
+	}	
 	   
     
     /**
@@ -150,6 +145,92 @@ abstract class Abilities {
 	    return $wpdb->prefix . $this->slug;
     }
     
+    
+    /**
+     * Generates the database version option name - assigned on __construct().
+     *
+     * @var string $table_name + _db_option
+     */
+    protected function generate_db_option_name() {
+	    return $this->table_name . '_db_version';
+    }
+    
+    
+    /**
+     * Create Database Table
+     *
+     * Checks on activation if the database table exists
+     * and creates a new table if it does not.
+     *
+     * @var string $table_name
+     * @var string $db_version
+     * @var string $db_version_option
+     *
+     */
+    public function create_db_table() {
+	     
+	    // Set table_name property as variable
+		$table_name = $this->table_name;
+		
+		 
+		global $wpdb; 
+		 
+		if($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+			
+			//Load sql statement and create new table!
+			$sql = $this->define_db_sql();
+			
+			if ( ! function_exists('dbDelta') ) {
+            	require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        	}
+        	
+        	// Create DB Table
+			dbDelta( $sql );
+			
+			// DB Version Control
+			add_option( $this->db_version_option, $this->db_version );
+		 	
+		}
+	     
+    }
+    
+    
+    /**
+     * Update Database Table
+     *
+     * Checks the stored version in wp_options and updates the database table
+     * if it does not match the current version designated in the $db_version_option property.
+     *
+     * @var string $db_version
+     * @var string $db_version_option
+     *
+     */
+    public function update_db_table() {
+	    
+    	// Get current DB version from property
+		$current_db_version = $this->db_version;
+		
+		//Get Database option from property
+		$option = $this->db_version_option;
+
+		// If database version is not the same
+		if( $current_db_version != get_option($option) ) {
+			
+        	//load sql statement
+			$sql = $this->define_db_sql();
+
+        if ( ! function_exists('dbDelta') ) {
+            require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+        }
+		
+		// Update DB Table
+        dbDelta( $sql );
+		
+		// Update DB version
+        update_option( $option, $current_db_version );
+    	}
+	}
+	
     
     /**
      * Set Screen

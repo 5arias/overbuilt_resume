@@ -25,7 +25,7 @@ require('inc/classes/metabox.php');
 require('inc/classes/abilities.php');
 require('inc/classes/skillset.php');
 require('inc/classes/skillset_list_table.php');
-require('inc/classes/devtools.php');
+require('inc/classes/toolbox.php');
 require('inc/classes/toolbox_list_table.php');
 
 
