@@ -12,14 +12,22 @@
  
 add_action( 'init', array( 'Toolbox', 'init' ));
  
+<<<<<<< HEAD
 class Toolbox extends Abilities {
+=======
+class Toolbox {
+>>>>>>> origin/toolbox-and-abstract-classes
 	
 	/**
      * Holds the class instance for singleton style instantiation.
      *
      * @var self
      */
+<<<<<<< HEAD
 	public static $instance;
+=======
+	static $instance;
+>>>>>>> origin/toolbox-and-abstract-classes
 	
 	
 	/**
@@ -35,6 +43,7 @@ class Toolbox extends Abilities {
      *
      * @object class Toolbox_List_Table.
      */
+<<<<<<< HEAD
 	//public $toolbox_table;
 	
 
@@ -45,6 +54,17 @@ class Toolbox extends Abilities {
      * @var string __CLASS__.
      */
 	//protected $slug;
+=======
+	public $toolbox_table;
+	
+
+	/**
+     * Create slug for use in menu and enqueueing scripts
+     *
+     * @var string __CLASS__.
+     */
+	protected $slug = 'toolbox';
+>>>>>>> origin/toolbox-and-abstract-classes
 	
 	
 	/**
@@ -52,7 +72,11 @@ class Toolbox extends Abilities {
      *
      * @var string $prefix + $slug.
      */
+<<<<<<< HEAD
 	//private $table_name;
+=======
+	private $table_name;
+>>>>>>> origin/toolbox-and-abstract-classes
 	
 	
 	/**
@@ -79,6 +103,7 @@ class Toolbox extends Abilities {
      *
      */
     public function __construct() {
+<<<<<<< HEAD
 	    
 	    //parent::__construct();
 	    
@@ -93,12 +118,27 @@ class Toolbox extends Abilities {
     	
     	//Update database table on load if new version exists.
     	add_action( 'wp_loaded', array( $this, 'update_db_table' ));
+=======
+    	
+    	//Assign table_name
+    	$this->table_name = $this->generate_table_name();
+    	
+    	//Create a new database table on theme activation
+    	add_action('wp_loaded', array($this, 'create_db_table'));
+    	
+    	//Update database table on load if new version exists.
+    	add_action( 'wp_loaded', array($this, 'update_db_table' ));
+>>>>>>> origin/toolbox-and-abstract-classes
     	
     	//Set Screen Options Filter
     	add_filter( 'set-screen-option', array( $this, 'set_screen' ), 10, 3 );
     	
     	//Create Admin Menu page
+<<<<<<< HEAD
     	add_action('admin_menu', array($this, 'add_admin_menu_page'));
+=======
+    	add_action('admin_menu', array($this, 'add_admin_menu_pages'));
+>>>>>>> origin/toolbox-and-abstract-classes
     	
     	//AJAX Submission for Toolbox Form
     	add_action( 'wp_ajax_submit_toolbox_ajax', array ( $this, 'submit_toolbox_ajax' ));
@@ -115,7 +155,11 @@ class Toolbox extends Abilities {
      * Generates the table name - assigned on __construct().
      *
      * @return string $prefix + $slug.
+<<<<<<< HEAD
      *
+=======
+     */
+>>>>>>> origin/toolbox-and-abstract-classes
     private function generate_table_name() {
 	    global $wpdb;
 	    return $wpdb->prefix . $this->slug;
@@ -227,10 +271,17 @@ class Toolbox extends Abilities {
      *
      * @return void
      */
+<<<<<<< HEAD
     public function add_admin_menu_page() {
 	    
 	    $this->hook = add_menu_page(
 			'Web Development Tools & Proficiency',  // page title
+=======
+    public function add_admin_menu_pages() {
+	    
+	    $hook = add_menu_page(
+			'Web Development Tools & Proficiency',              // page title
+>>>>>>> origin/toolbox-and-abstract-classes
 			'Toolbox',            					// menu title
 			'manage_options',                  	  	// capability
 			$this->slug,                          	// menu slug
@@ -239,6 +290,7 @@ class Toolbox extends Abilities {
 			22										// position
 		);
 		
+<<<<<<< HEAD
 		//$this->hook = $hook;
 		
 		// Load screen option parameters / args
@@ -254,6 +306,19 @@ class Toolbox extends Abilities {
 		
 		// make sure the script callback is used on this page only
 		//add_action( "admin_print_scripts-" . $this->hook, array( $this, 'enqueue_script' ) );
+=======
+		// Load screen option parameters / args
+		add_action( "load-$hook", array ( $this, 'screen_option' ) );
+		
+		// make sure the jqueryui style callback is used on this page only
+		add_action( "admin_print_styles-$hook", array( $this, 'load_jquery_ui' ) );
+		
+		// make sure the style callback is used on this page only
+		add_action( "admin_print_styles-$hook", array( $this, 'enqueue_style' ) );
+		
+		// make sure the script callback is used on this page only
+		add_action( "admin_print_scripts-$hook", array( $this, 'enqueue_script' ) );
+>>>>>>> origin/toolbox-and-abstract-classes
 		
     }
     
@@ -264,7 +329,11 @@ class Toolbox extends Abilities {
      * applies modified user submitted screen options to current admin screen
      *
      * @return mixed updated option
+<<<<<<< HEAD
      *
+=======
+     */
+>>>>>>> origin/toolbox-and-abstract-classes
     public function set_screen( $status, $option, $value ) {
 		return $value;
 	}
@@ -274,7 +343,11 @@ class Toolbox extends Abilities {
 	 * Load jQuery UI Smoothness stylesheet
 	 *
 	 * @return void
+<<<<<<< HEAD
 	 *
+=======
+	 */
+>>>>>>> origin/toolbox-and-abstract-classes
     function load_jquery_ui() {
     	global $wp_scripts;
  
@@ -292,7 +365,11 @@ class Toolbox extends Abilities {
 	 * Load Stylesheets
 	 *
 	 * @return void
+<<<<<<< HEAD
 	 *
+=======
+	 */
+>>>>>>> origin/toolbox-and-abstract-classes
 	public function enqueue_style() {
 		
 		// Default Class Styles
@@ -306,7 +383,11 @@ class Toolbox extends Abilities {
 	 * Load JavaScript
 	 *
 	 * @return void
+<<<<<<< HEAD
 	 *
+=======
+	 */
+>>>>>>> origin/toolbox-and-abstract-classes
 	public function enqueue_script(){
 		
 		// Load jQuery Ajax Form Plugin
@@ -337,7 +418,11 @@ class Toolbox extends Abilities {
 		add_screen_option( $option, $args );
 		
 		// Create new table!
+<<<<<<< HEAD
 		$this->table_display = new Toolbox_List_Table();
+=======
+		$this->toolbox_table = new Toolbox_List_Table();
+>>>>>>> origin/toolbox-and-abstract-classes
 	}
     
     
@@ -363,7 +448,11 @@ class Toolbox extends Abilities {
 				<div id="post-body" class="metabox-holder">
 					<div id="post-body-content">
 			
+<<<<<<< HEAD
 						<form id="add_ability" method="post" action="<?php echo admin_url('admin-ajax.php'); ?>">
+=======
+						<form id="add_skill" method="post" action="<?php echo admin_url('admin-ajax.php'); ?>">
+>>>>>>> origin/toolbox-and-abstract-classes
 							<div class="field-wrap">
 								<label for="tool_name">Tool</label>
 								<input type="text" name="tool_name" id="tool_name" value="">
@@ -389,8 +478,13 @@ class Toolbox extends Abilities {
 					<div class="meta-box-sortables ui-sortable">
 						<form method="post">
 							<?php
+<<<<<<< HEAD
 							$this->table_display->prepare_items();
 							$this->table_display->display(); 
+=======
+							$this->toolbox_table->prepare_items();
+							$this->toolbox_table->display(); 
+>>>>>>> origin/toolbox-and-abstract-classes
 							?>
 						</form>
 					</div><!-- .metabox-sortables -->
@@ -410,7 +504,11 @@ class Toolbox extends Abilities {
 	 * Data is sanitized within this method for added security
 	 * 
 	 * @param array $meta
+<<<<<<< HEAD
 	 *
+=======
+	 */
+>>>>>>> origin/toolbox-and-abstract-classes
     protected function insert_tool_to_db( $meta ) {
 	    
 	    // Make sure that we are provided a meta array
@@ -453,7 +551,11 @@ class Toolbox extends Abilities {
 	 * @var int $id 
 	 * @var string $column
 	 * @var string|int $value
+<<<<<<< HEAD
 	 *
+=======
+	 */
+>>>>>>> origin/toolbox-and-abstract-classes
     protected function update_tool_field( $id, $column, $value) {
 	    
 	    // Sanitize the data!
@@ -508,6 +610,7 @@ class Toolbox extends Abilities {
 		
 		//Set data into array for creating a skill
 		$meta = array(
+<<<<<<< HEAD
 			'tool'	=> sanitize_text_field($_POST[ 'tool_name' ]),
 			'exp'	=> absint($_POST[ 'tool_exp' ]),
 			'level' => absint($_POST[ 'tool_level' ])
@@ -515,6 +618,15 @@ class Toolbox extends Abilities {
 		
 		//Try creating a new skill!
 		$new_tool = $this->create( $meta );
+=======
+			'tool'	=> $_POST[ 'tool_name' ],
+			'exp'	=> $_POST[ 'tool_exp' ],
+			'level' => $_POST[ 'tool_level' ]
+		);
+		
+		//Try creating a new skill!
+		$new_tool = $this->insert_tool_to_db( $meta );
+>>>>>>> origin/toolbox-and-abstract-classes
 		
 		// Basic error handling
 		if ( $new_tool === false )
@@ -544,12 +656,21 @@ class Toolbox extends Abilities {
 			wp_die ( wp_json_encode('Sorry, You do not have permission to update tools.') );
 		
 		//Get variables
+<<<<<<< HEAD
 		$id 	= absint($_POST['pk']);
 		$column = sanitize_text_field($_POST['column']);
 		$value	= sanitize_text_field($_POST['value']);
 			
 		//Update field/column data
 		$update = $this->update($id, $column, $value);
+=======
+		$id = $_POST['pk'];
+		$column = $_POST['column'];
+		$value	= $_POST['value'];
+			
+		//Update field/column data
+		$update = $this->update_skill_field($id, $column, $value);
+>>>>>>> origin/toolbox-and-abstract-classes
 			
 		// Basic error handling
 		if ( $update === false )
@@ -571,7 +692,11 @@ class Toolbox extends Abilities {
 	 * @return objects $entries
 	 *
 	 * NOTE TO SELF: $wpdb->prepare was giving a weird syntax error, so for the time being, the args are sanitized. Fix it later.
+<<<<<<< HEAD
 	 *
+=======
+	 */
+>>>>>>> origin/toolbox-and-abstract-classes
     public static function getAll( $orderby = 'id', $order = 'ASC') {
 	    
 	    global $wpdb;
@@ -588,6 +713,10 @@ class Toolbox extends Abilities {
 	    
 	    return $entries; 
     }
+<<<<<<< HEAD
     */
+=======
+    
+>>>>>>> origin/toolbox-and-abstract-classes
     
 }
