@@ -1,18 +1,18 @@
 <?php
 /**
- * My Skillset Class
+ * Developer Toolbox Class
  *
- * Allows user to create skills and corresponding skill level in admin and displays on frontend.
+ * Allows user to create a list of web development tools with corresponding skill level and years of experience.
  *
  * @author  Stephen Brody
  * @link    http://stephenbrody.com
- * @version 0.3.0
+ * @version 0.1.0
  * @license http://www.opensource.org/licenses/mit-license.html MIT License
  */
  
-add_action( 'init', array( 'Skillset', 'init' ));
+add_action( 'init', array( 'Toolbox', 'init' ));
  
-class Skillset {
+class Toolbox {
 	
 	/**
      * Holds the class instance for singleton style instantiation.
@@ -27,15 +27,15 @@ class Skillset {
      *
      * @var string
      */
-	public $skillset_db_version = '0.3.2';
+	public $toolbox_db_version = '1.0.0';
 
 
 	/**
      * Class object for displaying the custom WP_List_Table for this class.
      *
-     * @object class Skillset_List_Table.
+     * @object class Toolbox_List_Table.
      */
-	public $skills_table;
+	public $toolbox_table;
 	
 
 	/**
@@ -43,7 +43,7 @@ class Skillset {
      *
      * @var string __CLASS__.
      */
-	protected $slug = 'skillset';
+	protected $slug = 'toolbox';
 	
 	
 	/**
@@ -83,10 +83,10 @@ class Skillset {
     	$this->table_name = $this->generate_table_name();
     	
     	//Create a new database table on theme activation
-    	add_action('wp_loaded', array($this, 'create_skillset_db_table'));
+    	add_action('wp_loaded', array($this, 'create_db_table'));
     	
     	//Update database table on load if new version exists.
-    	add_action( 'wp_loaded', array($this, 'update_skillset_db_table' ));
+    	add_action( 'wp_loaded', array($this, 'update_db_table' ));
     	
     	//Set Screen Options Filter
     	add_filter( 'set-screen-option', array( $this, 'set_screen' ), 10, 3 );
@@ -94,11 +94,11 @@ class Skillset {
     	//Create Admin Menu page
     	add_action('admin_menu', array($this, 'add_admin_menu_pages'));
     	
-    	//AJAX Submission for Skill Form
-    	add_action( 'wp_ajax_submit_skill_ajax', array ( $this, 'submit_skill_ajax' ));
+    	//AJAX Submission for Toolbox Form
+    	add_action( 'wp_ajax_submit_toolbox_ajax', array ( $this, 'submit_toolbox_ajax' ));
     	
-    	//AJAX Update for X-Editable Skill Field Data
-    	add_action( 'wp_ajax_update_skill_ajax', array ( $this, 'update_skill_ajax' ));
+    	//AJAX Update for X-Editable Toolbox Field Data
+    	add_action( 'wp_ajax_update_toolbox_ajax', array ( $this, 'update_toolbox_ajax' ));
     	
     }
     
@@ -118,15 +118,15 @@ class Skillset {
     
     
     /**
-     * Create Skillset Database Table
+     * Create Toolbox Database Table
      *
-     * Checks on activation if the _skillset table exists
+     * Checks on activation if the _toolbox table exists
      * and creates a new table if it does not.
      *
-     * @method callable create_skillset_table
+     * @method callable create_db_table
      *
      */
-    public function create_skillset_db_table() {
+    public function create_db_table() {
 	     
 	    // Set table_name property as variable
 		$table_name = $this->table_name;
@@ -141,10 +141,12 @@ class Skillset {
 			$sql = "CREATE TABLE $table_name (
 				id int(4) NOT NULL AUTO_INCREMENT,
 				user_id mediumint(9) NOT NULL,
-				name varchar(55) NOT NULL,
+				tool varchar(55) NOT NULL,
+				experience int(3) NOT NULL,
 				level int(3) NOT NULL,
 				date_created datetime NOT NULL,
 				date_updated datetime NOT NULL,
+				updated_by mediumint(9) NOT NULL,
 				UNIQUE KEY id (id)
 			) $charset_collate;";
 			
@@ -156,7 +158,7 @@ class Skillset {
 			dbDelta( $sql );
 			
 			// DB Version Control
-			add_option( 'res_skillset_db_version', '0.1.0' );
+			add_option( 'res_toolbox_db_version', '1.0.0' );
 		 	
 		}
 	     
@@ -164,24 +166,24 @@ class Skillset {
     
     
     /**
-     * Update Skillset Database Table
+     * Update Toolbox Database Table
      *
-     * Checks the stored version in wp_options and updates the _skillset table
-     * if it does not match the current version designated in the $skillset_db_version class property.
+     * Checks the stored version in wp_options and updates the _toolbox table
+     * if it does not match the current version designated in the $toolbox_db_version class property.
      *
-     * @var string $skillset_db_version
+     * @var string $toolbox_db_version
      *
      */
-    public function update_skillset_db_table() {
+    public function update_db_table() {
 	    
 	    // Set table_name property as variable
 		$table_name = $this->table_name;
 	    
     	// Get current DB version from property
-		$current_db_version = $this->skillset_db_version;
+		$current_db_version = $this->toolbox_db_version;
 
 		// If database version is not the same
-		if( $current_db_version != get_option('res_skillset_db_version') ) {
+		if( $current_db_version != get_option('res_toolbox_db_version') ) {
 			
         	global $wpdb;
 
@@ -190,7 +192,8 @@ class Skillset {
 			$sql = "CREATE TABLE $table_name (
 				id int(4) NOT NULL AUTO_INCREMENT,
 				user_id mediumint(9) NOT NULL,
-				name varchar(55) NOT NULL,
+				tool varchar(55) NOT NULL,
+				experience int(3) NOT NULL,
 				level int(3) NOT NULL,
 				date_created datetime NOT NULL,
 				date_updated datetime NOT NULL,
@@ -206,7 +209,7 @@ class Skillset {
         dbDelta( $sql );
 		
 		// Update DB version
-        update_option( 'res_skillset_db_version', $current_db_version );
+        update_option( 'res_toolbox_db_version', $current_db_version );
     	}
 	}
      
@@ -221,13 +224,13 @@ class Skillset {
     public function add_admin_menu_pages() {
 	    
 	    $hook = add_menu_page(
-			'My Skills & Proficiency',              // page title
-			'Skillset',            					// menu title
+			'Web Development Tools & Proficiency',              // page title
+			'Toolbox',            					// menu title
 			'manage_options',                  	  	// capability
 			$this->slug,                          	// menu slug
 			array ( $this, 'render_admin_page' ),  	// callback function
-			'dashicons-chart-bar',					// menu_icon
-			21										// position
+			'dashicons-editor-code',				// menu_icon
+			22										// position
 		);
 		
 		// Load screen option parameters / args
@@ -302,8 +305,8 @@ class Skillset {
 		// Load X-Editable
 		wp_enqueue_script( $this->slug . '_xedit', get_template_directory_uri() . '/inc/js/jqueryui-editable.min.js', array('jquery', 'jquery-ui-button', 'jquery-ui-tooltip'), FALSE, TRUE);
 		
-		// Skillset class scripts
-		wp_enqueue_script( $this->slug . '_js', get_template_directory_uri() . '/inc/js/skillset-admin.js', array('jquery'), FALSE, TRUE);
+		// Toolbox class scripts
+		wp_enqueue_script( $this->slug . '_js', get_template_directory_uri() . '/inc/js/abilities-admin.js', array('jquery'), FALSE, TRUE);
 	}
 	
 	
@@ -316,15 +319,15 @@ class Skillset {
 
 		$option = 'per_page';
 		$args   = [
-			'label'   => 'Skills',
+			'label'   => 'Dev Tools',
 			'default' => 5,
-			'option'  => 'skills_per_page'
+			'option'  => 'tools_per_page'
 		];
 
 		add_screen_option( $option, $args );
 		
 		// Create new table!
-		$this->skills_table = new Skillset_List_Table();
+		$this->toolbox_table = new Toolbox_List_Table();
 	}
     
     
@@ -352,28 +355,32 @@ class Skillset {
 			
 						<form id="add_skill" method="post" action="<?php echo admin_url('admin-ajax.php'); ?>">
 							<div class="field-wrap">
-								<label for="skill_name">Skill Name</label>
-								<input type="text" name="skill_name" id="skill_name" value="">
+								<label for="tool_name">Tool</label>
+								<input type="text" name="tool_name" id="tool_name" value="">
+							</div>
+							<div class="field-wrap">
+								<label for="tool_exp">Experience <span class="description">(in Years)</span></label>
+								<input type="text" name="tool_exp" id="tool_exp" value="">
 							</div>
 							<div class="field-wrap ">
-								<label for="skill_level">How proficient are you?</label>
-								<input type="range" name="skill_level" id="skill_level" value="50" min="0" max="100" step="1">
+								<label for="tool_level">How proficient are you?</label>
+								<input type="range" name="tool_level" id="tool_level" value="50" min="0" max="100" step="1">
 								<span class="range__value">0</span>
 							</div>
 							
 							<label for="submit">&nbsp;</label>
-							<?php wp_nonce_field( 'submit_skill_ajax', 'submit_skill_ajax_nonce' ); ?>
+							<?php wp_nonce_field( 'submit_tool_ajax', 'submit_tool_ajax_nonce' ); ?>
 							<input type="hidden" name="action" id="action" value="submit_skill_ajax">
-							<input type="submit" value="Add Skill" id="submit_skillset_button" class="button button-primary button-large">
+							<input type="submit" value="Add Tool" id="submit_tool_button" class="button button-primary button-large">
 						</form>
-						<div id="add_skill_response"></div>
+						<div id="add_tool_response"></div>
 					</div><!-- #post-body-content -->
 					
 					<div class="meta-box-sortables ui-sortable">
 						<form method="post">
 							<?php
-							$this->skills_table->prepare_items();
-							$this->skills_table->display(); 
+							$this->toolbox_table->prepare_items();
+							$this->toolbox_table->display(); 
 							?>
 						</form>
 					</div><!-- .metabox-sortables -->
@@ -387,14 +394,14 @@ class Skillset {
     
     
     /**
-	 * Insert Skill into DB
+	 * Insert Tool into DB
 	 *
-	 * Adds a new skill w/ meta to the database.
+	 * Adds a new tool w/ meta to the database.
 	 * Data is sanitized within this method for added security
 	 * 
 	 * @param array $meta
 	 */
-    protected function insert_skill_to_db( $meta ) {
+    protected function insert_tool_to_db( $meta ) {
 	    
 	    // Make sure that we are provided a meta array
 	    if( !is_array($meta) ) return false;
@@ -403,7 +410,8 @@ class Skillset {
 		$user_id = get_current_user_id();
 		
 		//Get and Sanitize Post Data
-		$name  = sanitize_text_field( $meta['name'] );
+		$tool  = sanitize_text_field( $meta['tool'] );
+		$exp   = sanitize_text_field( $meta['exp'] );
 		$level = absint( $meta['level'] );
 			
 		//Insert Entry into Database Table
@@ -414,7 +422,8 @@ class Skillset {
 			array( 
 				'user_id' 		=> $user_id,
 				'updated_by'	=> $user_id,
-				'name' 			=> $name,
+				'tool' 			=> $tool,
+				'experience'	=> $exp,
 				'level' 	 	=> $level,
 				'date_created'	=> current_time('mysql'),
 				'date_updated'  => current_time('mysql')
@@ -422,12 +431,12 @@ class Skillset {
 		);
 	    
     }
-    
+
     
     /**
-	 * Update Skill Field
+	 * Update Tool Field
 	 *
-	 * Updates a single field for a given skill
+	 * Updates a single field for a given tool
 	 * primarily used during ajax update via X-Editable
 	 * Data is sanitized within this method for added security
 	 * 
@@ -435,7 +444,7 @@ class Skillset {
 	 * @var string $column
 	 * @var string|int $value
 	 */
-    protected function update_skill_field( $id, $column, $value) {
+    protected function update_tool_field( $id, $column, $value) {
 	    
 	    // Sanitize the data!
 	    $id = absint($id);
@@ -443,6 +452,7 @@ class Skillset {
 	    
 	    switch($column){
 		    case 'name':
+		    case 'experience':
 		    	$value = sanitize_text_field($value);
 		    	break;
 		    case 'level':
@@ -470,43 +480,44 @@ class Skillset {
     
     
     /**
-	 * AJAX Skill Submission
+	 * AJAX Tool Submission
 	 *
-	 * Ajax callback for the "add skill" form
+	 * Ajax callback for the "add tool" form
 	 * checks permissions then wraps meta in an array for insertion into the db
 	 * 
 	 * @var array $meta
 	 * @return string $message
 	 */
-    public function submit_skill_ajax() {
+    public function submit_tool_ajax() {
 	    
-	    $nonce = $_POST['submit_skill_ajax_nonce'];
+	    $nonce = $_POST['submit_tool_ajax_nonce'];
 	    
 	    // Verify nonce and user permissions
-	    if ( !wp_verify_nonce( $nonce, 'submit_skill_ajax' ) || !current_user_can('manage_options'))
-			wp_die ( 'Sorry, You do not have permission to submit skills.');
+	    if ( !wp_verify_nonce( $nonce, 'submit_tool_ajax' ) || !current_user_can('manage_options'))
+			wp_die ( 'Sorry, You do not have permission to submit tools.');
 		
 		//Set data into array for creating a skill
 		$meta = array(
-			'name'	=> $_POST[ 'skill_name' ],
-			'level' => $_POST[ 'skill_level' ]
+			'tool'	=> $_POST[ 'tool_name' ],
+			'exp'	=> $_POST[ 'tool_exp' ],
+			'level' => $_POST[ 'tool_level' ]
 		);
 		
 		//Try creating a new skill!
-		$new_skill = $this->insert_skill_to_db( $meta );
+		$new_tool = $this->insert_tool_to_db( $meta );
 		
 		// Basic error handling
-		if ( $new_skill === false )
-			$message = "Oops! Unable to add new skill, please try again.";
+		if ( $new_tool === false )
+			$message = "Oops! Unable to add new tool, please try again.";
 		else 
-			$message = "Success! You've added a new skill!";
+			$message = "Success! You've added a new tool!";
 		
 		wp_die( wp_json_encode($message) );
 		
     }
     
     /**
-	 * AJAX Update Skill Data
+	 * AJAX Update Tool Data
 	 *
 	 * Ajax callback for inline editing via X-Editable
 	 * 
@@ -517,14 +528,14 @@ class Skillset {
 	 *
 	 * NOTE TO SELF: Consider adding a nonce field for verification (especially since they are used everywhere else).
 	 */
-    public function update_skill_ajax() {
+    public function update_tool_ajax() {
 	    
 	    if ( !current_user_can('manage_options'))
-			wp_die ( wp_json_encode('Sorry, You do not have permission to update skills.') );
+			wp_die ( wp_json_encode('Sorry, You do not have permission to update tools.') );
 		
 		//Get variables
 		$id = $_POST['pk'];
-		$column = $_POST['name'];
+		$column = $_POST['column'];
 		$value	= $_POST['value'];
 			
 		//Update field/column data
@@ -534,7 +545,7 @@ class Skillset {
 		if ( $update === false )
 			$message = "Oops! Unable to update your skill, please try again.";
 		else 
-			$message = "Success! Your skill has been updated!";
+			$message = "Success! Your tool has been updated!";
 		
 		wp_die( wp_json_encode($message) );
     }
