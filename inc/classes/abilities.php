@@ -63,6 +63,16 @@ abstract class Abilities {
 	 * @return html
 	 */
     abstract public function render_admin_page();
+    
+    
+    /**
+	 * Config settings for new Abilities_List_Table
+	 *
+	 * Includes #add_ability Form and table display
+	 *
+	 * @return html
+	 */
+    abstract public function list_table_config();
 	
 	
 	 
@@ -132,6 +142,10 @@ abstract class Abilities {
     	
     	//Create Admin Menu page
     	add_action('admin_menu', array($this, 'add_admin_menu_page'));
+    	
+    	//Ajax Response to refresh wp_list_table
+    	add_action('wp_ajax_update_abilities_list_table_ajax', array($this, 'update_abilities_list_table_ajax') );
+    	
 	}	
 	   
     
@@ -414,5 +428,20 @@ abstract class Abilities {
 	    
 	    return $entries; 
     }
+    
+    
+/**
+	 * Callback function for 'wp_ajax__ajax_fetch_custom_list' action hook.
+		* 
+ * Loads the Custom List Table Class and calls ajax_response method
+ */
+public function update_abilities_list_table_ajax() {
+	
+	$this->screen_option();
+	$this->table_display->ajax_response();
+
+}
+
+
 	
 }

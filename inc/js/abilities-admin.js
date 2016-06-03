@@ -2,7 +2,7 @@ jQuery(document).ready( function($){
 	
 	
 	//Variables for Slider
-	var range = $('#skill_level'),
+	var range = $('#level'),
 		value = $('.range__value');
 	
 	
@@ -32,19 +32,21 @@ var list = {
 	 */
 	init: function() {
 		
+		var updateAction = $('#list_update_action').val();
+		
 		$('.xedit').editable({
-	    url	: '/wp-admin/admin-ajax.php?action=update_skill_ajax',
-	    mode : 'inline',
-	    success: function(response, newValue) {
-        	console.log(response);
+	    	url	: '/wp-admin/admin-ajax.php?action='+updateAction,
+			mode : 'inline',
+			success: function(response) {
+        		//$('#notice-wrapper').html('<div class="notice notice-' + response.type + ' is-dismissible"><p>' + response.message + '</p></div>');
+        		$('#notice-wrapper').html(response);
     		}
     	});
     	
-    	
     	$('.xedit').on('shown', function() {
-        var input = $(document).find('.editable-input input').val();
-    	var output = $(document).find('.editable-input output');
-    	output.val(input);
+        	var input = $(document).find('.editable-input input').val();
+			var output = $(document).find('.editable-input output');
+			output.val(input);
     	});
 
 		// Pagination links, sortable link
@@ -109,8 +111,8 @@ var list = {
 			// Add action and nonce to our collected data
 			data: $.extend(
 				{
-					_ajax_skill_table_nonce: $('#_ajax_skill_table_nonce').val(),
-					action: 'update_skillset_list_table_ajax',
+					ajax_ability_table_nonce: $('#ajax_ability_table_nonce').val(),
+					action: 'update_abilities_list_table_ajax',
 				},
 				data
 			),
@@ -172,10 +174,10 @@ var list = {
 list.init();
 	
 	
-	//AJAX Submit for "add_skill" form
+	//AJAX Submit for "add_ability" form
 	
 	function showRequest() {
-		$('#submit_skillset_button').attr("disabled", "disabled");
+		$('#submit_ability_button').attr("disabled", "disabled");
 	}
 	
 	function showResponse()  { 
@@ -190,12 +192,10 @@ list.init();
 		};
 		list.update( data );
 		value.html(range.val() + '%');
-		$('#submit_skillset_button').removeAttr("disabled", "disabled");
+		$('#submit_ability_button').removeAttr("disabled", "disabled");
 	}
 	
 	var formOptions = { 
-        target:   '#add_skill_response',   // target element(s) to be updated with server response
-        dataType: 'json',
         beforeSubmit:  showRequest,
         success:  showResponse,
         clearForm: true,
@@ -203,7 +203,7 @@ list.init();
         };
         
 	// bind to the form's submit event 
-    $('#add_skill').submit(function() { 
+    $('#add_ability').submit(function() { 
         // inside event callbacks 'this' is the DOM element so we first 
         // wrap it in a jQuery object and then invoke ajaxSubmit 
         $(this).ajaxSubmit(formOptions); 
@@ -225,9 +225,9 @@ list.init();
 	    e.stopPropagation();
 	    
     	var pk = $(this).attr('data-pk');
-    	var type = $(this).attr('data-type');
-    	
-    	$('.xedit[data-pk="'+ pk +'"][data-type="'+ type +'"]').editable('toggle');
+    	var column = $(this).attr('for');
+
+    	$('.xedit[data-pk="'+ pk +'"][data-name="'+ column +'"]').editable('toggle');
     });
     
 	

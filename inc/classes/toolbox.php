@@ -28,7 +28,7 @@ class Toolbox extends Abilities {
      *
      * @var string
      */
-	public $db_version = '0.3.3';
+	public $db_version = '0.4.0';
 	
 	
 	/**
@@ -69,10 +69,10 @@ class Toolbox extends Abilities {
     	parent::__construct();
     	
     	//AJAX Submission for Toolbox Form
-    	add_action( 'wp_ajax_submit_toolbox_ajax', array ( $this, 'submit_toolbox_ajax' ));
+    	add_action( 'wp_ajax_submit_tool_ajax', array ( $this, 'submit_tool_ajax' ));
     	
     	//AJAX Update for X-Editable Toolbox Field Data
-    	add_action( 'wp_ajax_update_toolbox_ajax', array ( $this, 'update_toolbox_ajax' ));
+    	add_action( 'wp_ajax_update_tool_ajax', array ( $this, 'update_tool_ajax' ));
     	
     }
     
@@ -101,13 +101,12 @@ class Toolbox extends Abilities {
 		$sql = "CREATE TABLE $this->table_name (
 				id int(4) NOT NULL AUTO_INCREMENT,
 				user_id mediumint(9) NOT NULL,
-				tool varchar(55) NOT NULL,
+				name varchar(55) NOT NULL,
 				experience int(3) NOT NULL,
 				level int(3) NOT NULL,
 				date_created datetime NOT NULL,
 				date_updated datetime NOT NULL,
 				updated_by mediumint(9) NOT NULL,
-				revised_col mediumint(9) NOT NULL,
 				UNIQUE KEY id (id)
 			) $charset_collate;";
 	    
@@ -150,21 +149,64 @@ class Toolbox extends Abilities {
 	/**
 	 * Screen options
 	 *
-	 * Sets default screen options and officially instantiates the skillset list table
+	 * Sets default screen options and officially instantiates the abilities_list_table
 	 */
 	public function screen_option() {
 
 		$option = 'per_page';
 		$args   = [
-			'label'   => 'Dev Tools',
+			'label'   => 'Tools',
 			'default' => 5,
-			'option'  => 'tools_per_page'
+			'option'  => 'records_per_page'
 		];
 
 		add_screen_option( $option, $args );
 		
+		//Instantiate the list table and config settings
+		$this->list_table_config();
+		
+	}
+	
+	
+	/**
+	 * New Abilities_List_Table and Configuration
+	 *
+	 * Instantiates the list table and defines the config settings
+	 *
+	 * @return void
+	 */
+	public function list_table_config() {
+		
 		// Create new table!
-		$this->table_display = new Toolbox_List_Table();
+		$table = $this->table_display = new Abilities_List_Table();
+		
+		//Set DB table_name
+		$table::$db_table = $this->table_name;
+		
+		// Set $singular
+		$table->singular = 'Tool';
+		
+		// Set $plural
+		$table->plural = 'Tools';
+		
+		// Set Columns
+		$table->columns = array(
+			'cb'      	   => '<input type="checkbox" />',
+			'name'    	   => __( 'Tool', 'overbuilt_resume' ),
+			'level'   	   => __( 'Proficiency', 'overbuilt_resume' ),
+			'experience'   => __( 'Years of Experience', 'overbuilt_resume' ),
+			'date_created' => __( 'Date Added', 'overbuilt_resume' ),
+			'date_updated' => __( 'Date Updated', 'overbuilt_resume' )
+			);
+		
+		// Set Sortable Columns
+		$table->sortable_columns = array(
+			'name' => array( 'name', true ),
+			'level' => array( 'level', false ),
+			'experience'   => array( 'experience', false ),
+			'date_created' => array( 'date_created', false ),
+			'date_updated' => array( 'date_updated', false )
+			);
 	}
     
     
@@ -186,29 +228,29 @@ class Toolbox extends Abilities {
 		
 		<div class="wrap">
 			<h2><?php global $title; echo __($title, 'overbuilt-resume'); ?></h2>
-			<h2><?php echo 'Rendering Correctly!'; ?></h2>
 			<div id="poststuff">
+				<div id="notice-wrapper"></div>
 				<div id="post-body" class="metabox-holder">
 					<div id="post-body-content">
 						<form id="add_ability" method="post" action="<?php echo admin_url('admin-ajax.php'); ?>">
 							<div class="field-wrap">
-								<label for="tool_name">Tool</label>
-								<input type="text" name="tool_name" id="tool_name" value="">
+								<label for="name">Tool</label>
+								<input type="text" name="name" id="name" value="">
 							</div>
 							<div class="field-wrap">
-								<label for="tool_exp">Experience <span class="description">(in Years)</span></label>
-								<input type="text" name="tool_exp" id="tool_exp" value="">
+								<label for="experience">Years of Experience</label>
+								<input type="text" name="experience" id="experience" value="">
 							</div>
 							<div class="field-wrap ">
-								<label for="tool_level">How proficient are you?</label>
-								<input type="range" name="tool_level" id="tool_level" value="50" min="0" max="100" step="1">
+								<label for="level">How proficient are you?</label>
+								<input type="range" name="level" id="level" value="50" min="0" max="100" step="1">
 								<span class="range__value">0</span>
 							</div>
 							
 							<label for="submit">&nbsp;</label>
 							<?php wp_nonce_field( 'submit_tool_ajax', 'submit_tool_ajax_nonce' ); ?>
-							<input type="hidden" name="action" id="action" value="submit_skill_ajax">
-							<input type="submit" value="Add Tool" id="submit_tool_button" class="button button-primary button-large">
+							<input type="hidden" name="action" id="action" value="submit_tool_ajax">
+							<input type="submit" value="Add Tool" id="submit_ability_button" class="button button-primary button-large">
 						</form>
 						<div id="add_tool_response"></div>
 					</div><!-- #post-body-content -->
@@ -248,21 +290,27 @@ class Toolbox extends Abilities {
 		
 		//Set data into array for creating a skill
 		$meta = array(
-			'tool'	=> sanitize_text_field($_POST[ 'tool_name' ]),
-			'exp'	=> absint($_POST[ 'tool_exp' ]),
-			'level' => absint($_POST[ 'tool_level' ])
+			'name'		 => sanitize_text_field($_POST[ 'name' ]),
+			'experience' => absint($_POST[ 'experience' ]),
+			'level' 	 => absint($_POST[ 'level' ])
 		);
 		
 		//Try creating a new skill!
 		$new_tool = $this->create( $meta );
 		
 		// Basic error handling
-		if ( $new_tool === false )
+		if ( $new_tool === false ) {
+			$type = 'error';
 			$message = "Oops! Unable to add new tool, please try again.";
-		else 
+		} else { 
+			$type = 'success';
 			$message = "Success! You've added a new tool!";
+		}
 		
-		wp_die( wp_json_encode($message) );
+		add_action('admin_notices', array( $this, 'display_admin_notice'), 10, 2 );
+		do_action('admin_notices', $type, $message);
+		
+		wp_die();
 		
     }
     
@@ -285,19 +333,29 @@ class Toolbox extends Abilities {
 		
 		//Get variables
 		$id 	= absint($_POST['pk']);
-		$column = sanitize_text_field($_POST['column']);
+		$column = sanitize_text_field($_POST['name']);
 		$value	= sanitize_text_field($_POST['value']);
 			
 		//Update field/column data
 		$update = $this->update($id, $column, $value);
 			
 		// Basic error handling
-		if ( $update === false )
-			$message = "Oops! Unable to update your skill, please try again.";
-		else 
+		if ( $update === false ) {
+			$type = 'error';
+			$message = "Oops! Unable to update your toolbox, please try again.";
+		} else { 
+			$type = 'success';
 			$message = "Success! Your tool has been updated!";
+		}
 		
-		wp_die( wp_json_encode($message) );
+		add_action('admin_notices', array( $this, 'display_admin_notice'), 10, 2 );
+		do_action('admin_notices', $type, $message);
+		
+		wp_die();
+    }
+    
+    public function display_admin_notice($type, $message) {
+	    echo '<div class="notice notice-' . $type .' is-dismissible"><p>' . $message . '</p></div>';
     }
     
 }

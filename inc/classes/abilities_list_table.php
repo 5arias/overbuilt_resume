@@ -26,39 +26,87 @@ if( ! class_exists( 'WP_List_Table' ) ) {
  * Sometimes the Class throws a notice about 'hook_suffix' being undefined,
  * which breaks every AJAX call.
  */
-error_reporting( ~E_NOTICE );
+//error_reporting( ~E_NOTICE );
 
 
 
 
-class Toolbox_List_Table extends WP_List_Table {
+class Abilities_List_Table extends WP_List_Table {
+	
+	
+	/**
+     * Store table name for CRUD use
+     * Assigned by the "Abilities" child class instantiating this table.
+     *
+     * @var string $table_name ($prefix + $slug).
+     */
+	public static $db_table;
+	
+	
+	/**
+     * Store singular name of the listed records 
+     * Assigned by the "Abilities" child class instantiating this table.
+     *
+     * @var string $singular.
+     */
+	public $singular;
+	
+	
+	/**
+     * Store plural name of the listed records
+     * Assigned by the "Abilities" child class instantiating this table.
+     *
+     * @var string $plural.
+     */
+	public $plural;
+	
+	
+	/**
+     * Stores an array of column data for the get_columns method;
+     * Assigned by the "Abilities" child class instantiating this table.
+     *
+     * @var array $columns.
+     */
+	public $columns;
+	
+	
+	/**
+     * Stores an array of data for the get_sortable_columns method;
+     * Assigned by the "Abilities" child class instantiating this table.
+     *
+     * @var array $sortable_columns.
+     */
+	public $sortable_columns;
+	
 	
 	/** Class constructor */
 	public function __construct() {
 
 		parent::__construct( [
-			'singular' => __( 'Tool', 'sp' ), 		//singular name of the listed records
-			'plural'   => __( 'Tools', 'sp' ), 	//plural name of the listed records
-			'ajax'     => true 						//does this table support ajax?
+			'singular' => __( $this->singular, 'overbuilt_resume' ), 		
+			'plural'   => __( $this->plural, 'overbuilt_resume' ), 		
+			'ajax'     => true 	//does this table support ajax? Yes we do!
 		] );
-
+	
 	}
 
 
 	/**
-	 * Retrieve toolbox data from the database
+	 * Retrieve data from the database
 	 *
 	 * @param int $per_page
 	 * @param int $page_number
 	 *
 	 * @return mixed
 	 */
-	public static function get_tools( $per_page = 5, $page_number = 1 ) {
+	public static function get_records( $per_page = 5, $page_number = 1 ) {
 
 		global $wpdb;
 		
-//NOTE TO SELF: Replace static table name with property from toolboxset class. add $wpdb->prepare ???
-		$sql = "SELECT * FROM {$wpdb->prefix}toolbox";
+		$table_name = self::$db_table;
+		
+		//NOTE TO SELF: $wpdb->prepare ???
+		$sql = sprintf("SELECT * FROM %s", $table_name);
 
 		if ( ! empty( $_REQUEST['orderby'] ) ) {
 			$sql .= ' ORDER BY ' . esc_sql( $_REQUEST['orderby'] );
@@ -76,16 +124,18 @@ class Toolbox_List_Table extends WP_List_Table {
 
 
 	/**
-	 * Delete a toolbox.
+	 * Delete an ability.
 	 *
-	 * @param int $id toolbox id
+	 * @param int $id
 	 */
-	public static function delete_toolbox( $id ) {
+	public static function delete_record( $id ) {
 		global $wpdb;
 		
-//NOTE TO SELF: Replace static table name with property from toolboxset class. add $wpdb->prepare ???
+		$table_name = self::$db_table;
+		
+//NOTE TO SELF: add $wpdb->prepare ???
 		$wpdb->delete(
-			"{$wpdb->prefix}toolbox",
+			$table_name,
 			[ 'id' => $id ],
 			[ '%d' ]
 		);
@@ -99,16 +149,20 @@ class Toolbox_List_Table extends WP_List_Table {
 	 */
 	public static function record_count() {
 		global $wpdb;
-//NOTE TO SELF: Replace static table name with property from toolboxset class. add $wpdb->prepare ???
-		$sql = "SELECT COUNT(*) FROM {$wpdb->prefix}toolbox";
+		
+		$table_name = self::$db_table;
+		
+		//NOTE TO SELF: add $wpdb->prepare ???
+		$sql = sprintf("SELECT COUNT(*) FROM %s", $table_name);
 
 		return $wpdb->get_var( $sql );
 	}
 
 
 	/** Text displayed when no toolbox data is available */
+//NOTE TO SELF: Add a property so the calling class can set the message instead of hardcoding.
 	public function no_items() {
-		_e( 'You have no tools. How do you work?', 'sp' );
+		_e( 'You have no tools. How do you work?', 'overbuilt_resume' );
 	}
 
 
@@ -122,13 +176,18 @@ class Toolbox_List_Table extends WP_List_Table {
 	 */
 	public function column_default( $item, $column_name ) {
 		switch ( $column_name ) {
-			case 'name':
-			case 'level':
+			case 'id':
+			case 'user_id':
+			case 'updated_by':
 			case 'date_created':
 			case 'date_updated':
 				return $item[ $column_name ];
 			default:
-				return print_r( $item, true ); //Show the whole array for troubleshooting purposes
+				$title = '<a href="#" class="xedit" data-type="text" data-name="' . $column_name . '" data-pk="' . $item['id'] . '" >' . $item[ $column_name ] . '</a>';
+				$actions = [
+					'edit'   => sprintf('<a href="#" class="xedit-button" for="%s" data-pk="%d">Edit</a>', $column_name, absint( $item['id'] ))
+				];
+				return $title . $this->row_actions( $actions );
 		}
 	}
 
@@ -147,21 +206,21 @@ class Toolbox_List_Table extends WP_List_Table {
 
 
 	/**
-	 * Method for name column
+	 * Method for Ability name column
 	 *
 	 * @param array $item an array of DB data
 	 *
 	 * @return string
 	 */
-	function column_tool( $item ) {
+	function column_name( $item ) {
 
-		$delete_nonce = wp_create_nonce( 'sp_delete_toolbox' );
+		$delete_nonce = wp_create_nonce( 'delete_record' );
 
 		$title = '<strong><a href="#" class="xedit" data-type="text" data-name="name" data-pk="' . $item['id'] . '" >' . $item['name'] . '</a></strong>';
 
 		$actions = [
-			'edit'   => sprintf('<a href="#" class="xedit-button" data-type="%s" data-pk="%d" >Edit</a>', 'text', absint( $item['id'] )),
-			'delete' => sprintf( '<a href="?page=%s&action=%s&toolbox=%s&_wpnonce=%s">Delete</a>', esc_attr( $_REQUEST['page'] ), 'delete', absint( $item['id'] ), $delete_nonce )
+			'edit'   => sprintf('<a href="#" class="xedit-button" for="%s" data-pk="%d" >Edit</a>', 'name', absint( $item['id'] )),
+			'delete' => sprintf( '<a href="?page=%s&action=%s&record=%s&_wpnonce=%s">Delete</a>', esc_attr( $_REQUEST['page'] ), 'delete', absint( $item['id'] ), $delete_nonce )
 		];
 
 		return $title . $this->row_actions( $actions );
@@ -169,20 +228,18 @@ class Toolbox_List_Table extends WP_List_Table {
 	
 	
 	/**
-	 * Method for toolbox_level column (aka Proficiency)
+	 * Method for Ability level column
 	 *
 	 * @param array $item an array of DB data
 	 *
 	 * @return string
 	 */
-	function column_level( $item ) {
-
-		//$delete_nonce = wp_create_nonce( 'sp_delete_toolbox' );
+	function column_level( $item) {
 
 		$title = '<a href="#" class="xedit" data-type="range" data-name="level" data-pk="' . $item['id'] . '" >' . $item['level'] . '</a>';
 
 		$actions = [
-			'edit'   => sprintf('<a href="#" class="xedit-button" data-type="%s" data-pk="%d">Edit</a>', 'range', absint( $item['id'] ))
+			'edit'   => sprintf('<a href="#" class="xedit-button" for="%s" data-pk="%d">Edit</a>', 'level', absint( $item['id'] ))
 		];
 
 		return $title . $this->row_actions( $actions );
@@ -195,14 +252,7 @@ class Toolbox_List_Table extends WP_List_Table {
 	 * @return array
 	 */
 	function get_columns() {
-		$columns = [
-			'cb'      => '<input type="checkbox" />',
-			'tool'    => __( 'Tool', 'sp' ),
-			'level'   => __( 'Proficiency', 'sp' ),
-			'date_created' => __( 'Date Added', 'sp' ),
-			'date_updated' => __( 'Date Updated', 'sp' )
-		];
-
+		$columns = $this->columns;
 		return $columns;
 	}
 
@@ -212,14 +262,8 @@ class Toolbox_List_Table extends WP_List_Table {
 	 *
 	 * @return array
 	 */
-	public function get_sortable_columns() {
-		$sortable_columns = array(
-			'tool' => array( 'tool', true ),
-			'level' => array( 'level', false ),
-			'date_created' => array( 'date_created', false ),
-			'date_updated' => array( 'date_updated', false )
-		);
-
+	public function get_sortable_columns( ) {
+		$sortable_columns = $this->sortable_columns;
 		return $sortable_columns;
 	}
 
@@ -250,7 +294,7 @@ class Toolbox_List_Table extends WP_List_Table {
 		/**
 		 * REQUIRED. We also have to register our pagination options & calculations.
 		 */
-		$per_page     = $this->get_items_per_page( 'tools_per_page', 5 );
+		$per_page     = $this->get_items_per_page( 'records_per_page', 5 );
 		$current_page = $this->get_pagenum();
 		$total_items  = self::record_count();
 
@@ -261,15 +305,12 @@ class Toolbox_List_Table extends WP_List_Table {
 			'per_page'    => $per_page,
 			//WE have to calculate the total number of pages
 			'total_pages'	=> ceil( $total_items / $per_page )
-			// Set ordering values if needed (useful for AJAX)
-			//'orderby'	=> ! empty( $_REQUEST['orderby'] ) && '' != $_REQUEST['orderby'] ? $_REQUEST['orderby'] : 'title',
-			//'order'		=> ! empty( $_REQUEST['order'] ) && '' != $_REQUEST['order'] ? $_REQUEST['order'] : 'asc'
 		] );
 		
 		/**
 		 * REQUIRED. Set data
 		 */
-		$this->items = self::get_tools( $per_page, $current_page );
+		$this->items = self::get_records( $per_page, $current_page );
 		
 	}
 
@@ -281,11 +322,11 @@ class Toolbox_List_Table extends WP_List_Table {
 			// In our file that handles the request, verify the nonce.
 			$nonce = esc_attr( $_REQUEST['_wpnonce'] );
 
-			if ( ! wp_verify_nonce( $nonce, 'sp_delete_toolbox' ) ) {
+			if ( ! wp_verify_nonce( $nonce, 'delete_record' ) ) {
 				die( 'Go get a life script kiddies' );
 			}
 			else {
-				self::delete_toolbox( absint( $_GET['toolbox'] ) );
+				self::delete_record( absint( $_GET['record'] ) );
 
 				wp_redirect( esc_url_raw( add_query_arg() ) );
 				exit;
@@ -302,7 +343,7 @@ class Toolbox_List_Table extends WP_List_Table {
 
 			// loop over the array of record ids and delete them
 			foreach ( $delete_ids as $id ) {
-				self::delete_toolbox( $id );
+				self::delete_record( $id );
 
 			}
 
@@ -323,10 +364,11 @@ class Toolbox_List_Table extends WP_List_Table {
 	 */
 	function display() {
 
-		wp_nonce_field( 'ajax-toolbox-table-nonce', '_ajax_toolbox_table_nonce' );
+		wp_nonce_field( 'ajax_ability_table_nonce', 'ajax_ability_table_nonce' );
 
 		echo '<input type="hidden" id="order" name="order" value="' . $this->_pagination_args['order'] . '" />';
 		echo '<input type="hidden" id="orderby" name="orderby" value="' . $this->_pagination_args['orderby'] . '" />';
+		echo '<input type="hidden" id="list_update_action" name="list_update_action" value="update_' . strtolower($this->singular) . '_ajax" />';
 
 		parent::display();
 	}
@@ -340,7 +382,7 @@ class Toolbox_List_Table extends WP_List_Table {
 	 */
 	function ajax_response() {
 
-		check_ajax_referer( 'ajax-toolbox-table-nonce', '_ajax_toolbox_table_nonce' );
+		check_ajax_referer( 'ajax_ability_table_nonce', 'ajax_ability_table_nonce' );
 
 		$this->prepare_items();
 
@@ -385,17 +427,3 @@ class Toolbox_List_Table extends WP_List_Table {
 	}
 	
 }
-
-
-/**
- * Callback function for 'wp_ajax__ajax_fetch_custom_list' action hook.
- * 
- * Loads the Custom List Table Class and calls ajax_response method
- */
-function update_toolbox_list_table_ajax() {
-
-	$toolbox_list_table = new Toolbox_List_Table();
-	$toolbox_list_table->ajax_response();
-}
-
-add_action('wp_ajax_update_toolbox_list_table_ajax', 'update_toolbox_list_table_ajax');
