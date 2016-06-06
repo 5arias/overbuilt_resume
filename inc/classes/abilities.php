@@ -144,7 +144,7 @@ abstract class Abilities {
     	add_action('admin_menu', array($this, 'add_admin_menu_page'));
     	
     	//Ajax Response to refresh wp_list_table
-    	add_action('wp_ajax_update_abilities_list_table_ajax', array($this, 'update_abilities_list_table_ajax') );
+    	//add_action('wp_ajax_update_abilities_list_table_ajax', array($this, 'update_abilities_list_table_ajax') );
     	
 	}	
 	   
@@ -430,18 +430,19 @@ abstract class Abilities {
     }
     
     
-/**
+    
+    
+    
+	/**
 	 * Callback function for 'wp_ajax__ajax_fetch_custom_list' action hook.
-		* 
- * Loads the Custom List Table Class and calls ajax_response method
- */
-public function update_abilities_list_table_ajax() {
+	 * 
+	 * Loads the Custom List Table Class and calls ajax_response method
+	 *
+	public function update_abilities_list_table_ajax() {
 	
-	$this->screen_option();
-	$this->table_display->ajax_response();
-
-}
-
-
+		$this->screen_option();
+		$this->table_display->ajax_response();
+	}
+	*/
 	
 }

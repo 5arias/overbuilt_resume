@@ -26,68 +26,36 @@ if( ! class_exists( 'WP_List_Table' ) ) {
  * Sometimes the Class throws a notice about 'hook_suffix' being undefined,
  * which breaks every AJAX call.
  */
-//error_reporting( ~E_NOTICE );
+error_reporting( ~E_NOTICE );
 
 
 
 
-class Abilities_List_Table extends WP_List_Table {
-	
+class Toolbox_List_Table extends WP_List_Table {
 	
 	/**
      * Store table name for CRUD use
-     * Assigned by the "Abilities" child class instantiating this table.
+     * Assigned on __construct
      *
      * @var string $table_name ($prefix + $slug).
      */
 	public static $db_table;
 	
 	
-	/**
-     * Store singular name of the listed records 
-     * Assigned by the "Abilities" child class instantiating this table.
-     *
-     * @var string $singular.
-     */
-	public $singular;
-	
-	
-	/**
-     * Store plural name of the listed records
-     * Assigned by the "Abilities" child class instantiating this table.
-     *
-     * @var string $plural.
-     */
-	public $plural;
-	
-	
-	/**
-     * Stores an array of column data for the get_columns method;
-     * Assigned by the "Abilities" child class instantiating this table.
-     *
-     * @var array $columns.
-     */
-	public $columns;
-	
-	
-	/**
-     * Stores an array of data for the get_sortable_columns method;
-     * Assigned by the "Abilities" child class instantiating this table.
-     *
-     * @var array $sortable_columns.
-     */
-	public $sortable_columns;
-	
-	
 	/** Class constructor */
 	public function __construct() {
+		global $wpdb;
+		
+		//Assign 
+		self::$db_table = $wpdb->prefix . 'toolbox';
+		
 
 		parent::__construct( [
-			'singular' => __( $this->singular, 'overbuilt_resume' ), 		
-			'plural'   => __( $this->plural, 'overbuilt_resume' ), 		
-			'ajax'     => true 	//does this table support ajax? Yes we do!
+			'singular' => __( 'Tool', 'sp' ), 		//singular name of the listed records
+			'plural'   => __( 'Tools', 'sp' ), 		//plural name of the listed records
+			'ajax'     => true 						//does this table support ajax?
 		] );
-	
+
 	}
 
 
@@ -99,14 +67,11 @@ class Abilities_List_Table extends WP_List_Table {
 	 *
 	 * @return mixed
 	 */
-	public static function get_records( $per_page = 5, $page_number = 1 ) {
+	public static function get_tools( $per_page = 5, $page_number = 1 ) {
 
 		global $wpdb;
 		
-		$table_name = self::$db_table;
-		
-		//NOTE TO SELF: $wpdb->prepare ???
-		$sql = sprintf("SELECT * FROM %s", $table_name);
+		$sql = "SELECT * FROM " . self::$db_table;
 
 		if ( ! empty( $_REQUEST['orderby'] ) ) {
 			$sql .= ' ORDER BY ' . esc_sql( $_REQUEST['orderby'] );
@@ -124,18 +89,15 @@ class Abilities_List_Table extends WP_List_Table {
 
 
 	/**
-	 * Delete an ability.
+	 * Delete a tool.
 	 *
-	 * @param int $id
+	 * @param int $id tool id
 	 */
-	public static function delete_record( $id ) {
+	public static function delete_tool( $id ) {
 		global $wpdb;
 		
-		$table_name = self::$db_table;
-		
-//NOTE TO SELF: add $wpdb->prepare ???
 		$wpdb->delete(
-			$table_name,
+			self::$db_table,
 			[ 'id' => $id ],
 			[ '%d' ]
 		);
@@ -149,20 +111,15 @@ class Abilities_List_Table extends WP_List_Table {
 	 */
 	public static function record_count() {
 		global $wpdb;
-		
-		$table_name = self::$db_table;
-		
-		//NOTE TO SELF: add $wpdb->prepare ???
-		$sql = sprintf("SELECT COUNT(*) FROM %s", $table_name);
+		$sql = "SELECT COUNT(*) FROM " . self::$db_table;
 
 		return $wpdb->get_var( $sql );
 	}
 
 
 	/** Text displayed when no toolbox data is available */
-//NOTE TO SELF: Add a property so the calling class can set the message instead of hardcoding.
 	public function no_items() {
-		_e( 'You have no tools. How do you work?', 'overbuilt_resume' );
+		_e( 'You have no tools. How do you work?', 'sp' );
 	}
 
 
@@ -206,7 +163,7 @@ class Abilities_List_Table extends WP_List_Table {
 
 
 	/**
-	 * Method for Ability name column
+	 * Method for name column
 	 *
 	 * @param array $item an array of DB data
 	 *
@@ -214,13 +171,13 @@ class Abilities_List_Table extends WP_List_Table {
 	 */
 	function column_name( $item ) {
 
-		$delete_nonce = wp_create_nonce( 'delete_record' );
+		$delete_nonce = wp_create_nonce( 'sp_delete_tool' );
 
 		$title = '<strong><a href="#" class="xedit" data-type="text" data-name="name" data-pk="' . $item['id'] . '" >' . $item['name'] . '</a></strong>';
 
 		$actions = [
 			'edit'   => sprintf('<a href="#" class="xedit-button" for="%s" data-pk="%d" >Edit</a>', 'name', absint( $item['id'] )),
-			'delete' => sprintf( '<a href="?page=%s&action=%s&record=%s&_wpnonce=%s">Delete</a>', esc_attr( $_REQUEST['page'] ), 'delete', absint( $item['id'] ), $delete_nonce )
+			'delete' => sprintf( '<a href="?page=%s&action=%s&tool=%s&_wpnonce=%s">Delete</a>', esc_attr( $_REQUEST['page'] ), 'delete', absint( $item['id'] ), $delete_nonce )
 		];
 
 		return $title . $this->row_actions( $actions );
@@ -228,7 +185,7 @@ class Abilities_List_Table extends WP_List_Table {
 	
 	
 	/**
-	 * Method for Ability level column
+	 * Method for tool_level column (aka Proficiency)
 	 *
 	 * @param array $item an array of DB data
 	 *
@@ -252,7 +209,15 @@ class Abilities_List_Table extends WP_List_Table {
 	 * @return array
 	 */
 	function get_columns() {
-		$columns = $this->columns;
+		$columns = [
+			'cb'      	   => '<input type="checkbox" />',
+			'name'    	   => __( 'Tool', 'sp' ),
+			'level'   	   => __( 'Proficiency', 'sp' ),
+			'experience'   => __( 'Years of Experience', 'sp' ),
+			'date_created' => __( 'Date Added', 'sp' ),
+			'date_updated' => __( 'Date Updated', 'sp' )
+		];
+
 		return $columns;
 	}
 
@@ -262,8 +227,15 @@ class Abilities_List_Table extends WP_List_Table {
 	 *
 	 * @return array
 	 */
-	public function get_sortable_columns( ) {
-		$sortable_columns = $this->sortable_columns;
+	public function get_sortable_columns() {
+		$sortable_columns = array(
+			'name' => array( 'name', false ),
+			'level' => array( 'level', false ),
+			'experience'   => array( 'experience', false ),
+			'date_created' => array( 'date_created', false ),
+			'date_updated' => array( 'date_updated', false )
+		);
+
 		return $sortable_columns;
 	}
 
@@ -294,7 +266,7 @@ class Abilities_List_Table extends WP_List_Table {
 		/**
 		 * REQUIRED. We also have to register our pagination options & calculations.
 		 */
-		$per_page     = $this->get_items_per_page( 'records_per_page', 5 );
+		$per_page     = $this->get_items_per_page( 'tools_per_page', 5 );
 		$current_page = $this->get_pagenum();
 		$total_items  = self::record_count();
 
@@ -310,7 +282,7 @@ class Abilities_List_Table extends WP_List_Table {
 		/**
 		 * REQUIRED. Set data
 		 */
-		$this->items = self::get_records( $per_page, $current_page );
+		$this->items = self::get_tools( $per_page, $current_page );
 		
 	}
 
@@ -322,11 +294,11 @@ class Abilities_List_Table extends WP_List_Table {
 			// In our file that handles the request, verify the nonce.
 			$nonce = esc_attr( $_REQUEST['_wpnonce'] );
 
-			if ( ! wp_verify_nonce( $nonce, 'delete_record' ) ) {
+			if ( ! wp_verify_nonce( $nonce, 'sp_delete_tool' ) ) {
 				die( 'Go get a life script kiddies' );
 			}
 			else {
-				self::delete_record( absint( $_GET['record'] ) );
+				self::delete_tool( absint( $_GET['tool'] ) );
 
 				wp_redirect( esc_url_raw( add_query_arg() ) );
 				exit;
@@ -343,7 +315,7 @@ class Abilities_List_Table extends WP_List_Table {
 
 			// loop over the array of record ids and delete them
 			foreach ( $delete_ids as $id ) {
-				self::delete_record( $id );
+				self::delete_tool( $id );
 
 			}
 
@@ -364,11 +336,11 @@ class Abilities_List_Table extends WP_List_Table {
 	 */
 	function display() {
 
-		wp_nonce_field( 'ajax_ability_table_nonce', 'ajax_ability_table_nonce' );
+		wp_nonce_field( 'ajax-toolbox-table-nonce', '_ajax_tool_table_nonce' );
 
 		echo '<input type="hidden" id="order" name="order" value="' . $this->_pagination_args['order'] . '" />';
 		echo '<input type="hidden" id="orderby" name="orderby" value="' . $this->_pagination_args['orderby'] . '" />';
-		echo '<input type="hidden" id="list_update_action" name="list_update_action" value="update_' . strtolower($this->singular) . '_ajax" />';
+		echo '<input type="hidden" id="list_update_action" name="list_update_action" value="update_tool_ajax" />';
 
 		parent::display();
 	}
@@ -382,7 +354,7 @@ class Abilities_List_Table extends WP_List_Table {
 	 */
 	function ajax_response() {
 
-		check_ajax_referer( 'ajax_ability_table_nonce', 'ajax_ability_table_nonce' );
+		check_ajax_referer( 'ajax-toolbox-table-nonce', '_ajax_tool_table_nonce' );
 
 		$this->prepare_items();
 
@@ -427,3 +399,17 @@ class Abilities_List_Table extends WP_List_Table {
 	}
 	
 }
+
+
+/**
+ * Callback function for 'wp_ajax__ajax_fetch_custom_list' action hook.
+ * 
+ * Loads the Custom List Table Class and calls ajax_response method
+ */
+function update_toolbox_list_table_ajax() {
+
+	$tool_list_table = new Toolbox_List_Table();
+	$tool_list_table->ajax_response();
+}
+
+add_action('wp_ajax_update_toolbox_list_table_ajax', 'update_toolbox_list_table_ajax');

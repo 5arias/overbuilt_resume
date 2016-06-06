@@ -157,7 +157,7 @@ class Toolbox extends Abilities {
 		$args   = [
 			'label'   => 'Tools',
 			'default' => 5,
-			'option'  => 'records_per_page'
+			'option'  => 'tools_per_page'
 		];
 
 		add_screen_option( $option, $args );
@@ -178,35 +178,8 @@ class Toolbox extends Abilities {
 	public function list_table_config() {
 		
 		// Create new table!
-		$table = $this->table_display = new Abilities_List_Table();
+		$table = $this->table_display = new Toolbox_List_Table();
 		
-		//Set DB table_name
-		$table::$db_table = $this->table_name;
-		
-		// Set $singular
-		$table->singular = 'Tool';
-		
-		// Set $plural
-		$table->plural = 'Tools';
-		
-		// Set Columns
-		$table->columns = array(
-			'cb'      	   => '<input type="checkbox" />',
-			'name'    	   => __( 'Tool', 'overbuilt_resume' ),
-			'level'   	   => __( 'Proficiency', 'overbuilt_resume' ),
-			'experience'   => __( 'Years of Experience', 'overbuilt_resume' ),
-			'date_created' => __( 'Date Added', 'overbuilt_resume' ),
-			'date_updated' => __( 'Date Updated', 'overbuilt_resume' )
-			);
-		
-		// Set Sortable Columns
-		$table->sortable_columns = array(
-			'name' => array( 'name', true ),
-			'level' => array( 'level', false ),
-			'experience'   => array( 'experience', false ),
-			'date_created' => array( 'date_created', false ),
-			'date_updated' => array( 'date_updated', false )
-			);
 	}
     
     

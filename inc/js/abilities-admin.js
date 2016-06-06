@@ -111,8 +111,8 @@ var list = {
 			// Add action and nonce to our collected data
 			data: $.extend(
 				{
-					ajax_ability_table_nonce: $('#ajax_ability_table_nonce').val(),
-					action: 'update_abilities_list_table_ajax',
+					_ajax_tool_table_nonce: $('#_ajax_tool_table_nonce').val(),
+					action: 'update_toolbox_list_table_ajax',
 				},
 				data
 			),
