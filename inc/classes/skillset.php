@@ -1,12 +1,12 @@
 <?php
 /**
- * My Skillset Class
+ * My Skillset Class (mySkills)
  *
  * Allows user to create skills and corresponding skill level in admin and displays on frontend.
  *
  * @author  Stephen Brody
  * @link    http://stephenbrody.com
- * @version 0.3.0
+ * @version 0.2.0
  * @license http://www.opensource.org/licenses/mit-license.html MIT License
  */
  
