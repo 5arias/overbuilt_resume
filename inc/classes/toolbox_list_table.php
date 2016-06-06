@@ -177,7 +177,7 @@ class Toolbox_List_Table extends WP_List_Table {
 
 		$actions = [
 			'edit'   => sprintf('<a href="#" class="xedit-button" for="%s" data-pk="%d" >Edit</a>', 'name', absint( $item['id'] )),
-			'delete' => sprintf( '<a href="?page=%s&action=%s&tool=%s&_wpnonce=%s">Delete</a>', esc_attr( $_REQUEST['page'] ), 'delete', absint( $item['id'] ), $delete_nonce )
+			'delete' => sprintf( '<a href="?page=%s&action=%s&tool=%s&_wpnonce=%s">Delete</a>', 'toolbox', 'delete', absint( $item['id'] ), $delete_nonce )
 		];
 
 		return $title . $this->row_actions( $actions );
@@ -336,11 +336,12 @@ class Toolbox_List_Table extends WP_List_Table {
 	 */
 	function display() {
 
-		wp_nonce_field( 'ajax-toolbox-table-nonce', '_ajax_tool_table_nonce' );
+		wp_nonce_field( 'ajax-ability-table-nonce', 'ability_table_nonce' );
 
 		echo '<input type="hidden" id="order" name="order" value="' . $this->_pagination_args['order'] . '" />';
 		echo '<input type="hidden" id="orderby" name="orderby" value="' . $this->_pagination_args['orderby'] . '" />';
-		echo '<input type="hidden" id="list_update_action" name="list_update_action" value="update_tool_ajax" />';
+		echo '<input type="hidden" id="xedit_action" name="xedit_action" value="update_tool_ajax" />';
+		echo '<input type="hidden" id="list_update_action" name="list_update_action" value="update_toolbox_list_table_ajax" />';
 
 		parent::display();
 	}
@@ -354,7 +355,7 @@ class Toolbox_List_Table extends WP_List_Table {
 	 */
 	function ajax_response() {
 
-		check_ajax_referer( 'ajax-toolbox-table-nonce', '_ajax_tool_table_nonce' );
+		check_ajax_referer( 'ajax-ability-table-nonce', 'ability_table_nonce' );
 
 		$this->prepare_items();
 

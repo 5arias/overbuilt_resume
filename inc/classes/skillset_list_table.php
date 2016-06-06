@@ -33,8 +33,21 @@ error_reporting( ~E_NOTICE );
 
 class Skillset_List_Table extends WP_List_Table {
 	
+	/**
+     * Store table name for CRUD use
+     * Assigned on __construct
+     *
+     * @var string $table_name ($prefix + $slug).
+     */
+	public static $db_table;
+	
 	/** Class constructor */
 	public function __construct() {
+		
+		global $wpdb;
+		
+		//Assign 
+		self::$db_table = $wpdb->prefix . 'skillset';
 
 		parent::__construct( [
 			'singular' => __( 'Skill', 'sp' ), 		//singular name of the listed records
@@ -57,8 +70,7 @@ class Skillset_List_Table extends WP_List_Table {
 
 		global $wpdb;
 		
-//NOTE TO SELF: Replace static table name with property from Skillset class. add $wpdb->prepare ???
-		$sql = "SELECT * FROM {$wpdb->prefix}skillset";
+		$sql = "SELECT * FROM " . self::$db_table;
 
 		if ( ! empty( $_REQUEST['orderby'] ) ) {
 			$sql .= ' ORDER BY ' . esc_sql( $_REQUEST['orderby'] );
@@ -82,10 +94,9 @@ class Skillset_List_Table extends WP_List_Table {
 	 */
 	public static function delete_skill( $id ) {
 		global $wpdb;
-		
-//NOTE TO SELF: Replace static table name with property from Skillset class. add $wpdb->prepare ???
+
 		$wpdb->delete(
-			"{$wpdb->prefix}skillset",
+			self::$db_table,
 			[ 'id' => $id ],
 			[ '%d' ]
 		);
@@ -99,8 +110,8 @@ class Skillset_List_Table extends WP_List_Table {
 	 */
 	public static function record_count() {
 		global $wpdb;
-//NOTE TO SELF: Replace static table name with property from Skillset class. add $wpdb->prepare ???
-		$sql = "SELECT COUNT(*) FROM {$wpdb->prefix}skillset";
+
+		$sql = "SELECT COUNT(*) FROM " . self::$db_table;
 
 		return $wpdb->get_var( $sql );
 	}
@@ -122,15 +133,22 @@ class Skillset_List_Table extends WP_List_Table {
 	 */
 	public function column_default( $item, $column_name ) {
 		switch ( $column_name ) {
-			case 'name':
-			case 'level':
+			case 'id':
+			case 'user_id':
+			case 'updated_by':
 			case 'date_created':
 			case 'date_updated':
 				return $item[ $column_name ];
 			default:
-				return print_r( $item, true ); //Show the whole array for troubleshooting purposes
+				$title = '<a href="#" class="xedit" data-type="text" data-name="' . $column_name . '" data-pk="' . $item['id'] . '" >' . $item[ $column_name ] . '</a>';
+				$actions = [
+					'edit'   => sprintf('<a href="#" class="xedit-button" for="%s" data-pk="%d">Edit</a>', $column_name, absint( $item['id'] ))
+				];
+				return $title . $this->row_actions( $actions );
 		}
 	}
+	
+	
 
 	/**
 	 * Render the bulk edit checkbox
@@ -160,8 +178,8 @@ class Skillset_List_Table extends WP_List_Table {
 		$title = '<strong><a href="#" class="xedit" data-type="text" data-name="name" data-pk="' . $item['id'] . '" >' . $item['name'] . '</a></strong>';
 
 		$actions = [
-			'edit'   => sprintf('<a href="#" class="xedit-button" data-type="%s" data-pk="%d" >Edit</a>', 'text', absint( $item['id'] )),
-			'delete' => sprintf( '<a href="?page=%s&action=%s&skill=%s&_wpnonce=%s">Delete</a>', esc_attr( $_REQUEST['page'] ), 'delete', absint( $item['id'] ), $delete_nonce )
+			'edit'   => sprintf('<a href="#" class="xedit-button" data-type="text" for="%s" data-pk="%d" >Edit</a>', 'name', absint( $item['id'] )),
+			'delete' => sprintf( '<a href="?page=%s&action=%s&skill=%s&_wpnonce=%s">Delete</a>', 'skillset', 'delete', absint( $item['id'] ), $delete_nonce )
 		];
 
 		return $title . $this->row_actions( $actions );
@@ -182,7 +200,7 @@ class Skillset_List_Table extends WP_List_Table {
 		$title = '<a href="#" class="xedit" data-type="range" data-name="level" data-pk="' . $item['id'] . '" >' . $item['level'] . '</a>';
 
 		$actions = [
-			'edit'   => sprintf('<a href="#" class="xedit-button" data-type="%s" data-pk="%d">Edit</a>', 'range', absint( $item['id'] ))
+			'edit'   => sprintf('<a href="#" class="xedit-button" data-type="range" for="%s" data-pk="%d">Edit</a>', 'level', absint( $item['id'] ))
 		];
 
 		return $title . $this->row_actions( $actions );
@@ -214,7 +232,7 @@ class Skillset_List_Table extends WP_List_Table {
 	 */
 	public function get_sortable_columns() {
 		$sortable_columns = array(
-			'name' => array( 'name', true ),
+			'name' => array( 'name', false ),
 			'level' => array( 'level', false ),
 			'date_created' => array( 'date_created', false ),
 			'date_updated' => array( 'date_updated', false )
@@ -261,9 +279,6 @@ class Skillset_List_Table extends WP_List_Table {
 			'per_page'    => $per_page,
 			//WE have to calculate the total number of pages
 			'total_pages'	=> ceil( $total_items / $per_page )
-			// Set ordering values if needed (useful for AJAX)
-			//'orderby'	=> ! empty( $_REQUEST['orderby'] ) && '' != $_REQUEST['orderby'] ? $_REQUEST['orderby'] : 'title',
-			//'order'		=> ! empty( $_REQUEST['order'] ) && '' != $_REQUEST['order'] ? $_REQUEST['order'] : 'asc'
 		] );
 		
 		/**
@@ -323,10 +338,12 @@ class Skillset_List_Table extends WP_List_Table {
 	 */
 	function display() {
 
-		wp_nonce_field( 'ajax-skillset-table-nonce', '_ajax_skill_table_nonce' );
+		wp_nonce_field( 'ajax-ability-table-nonce', 'ability_table_nonce' );
 
 		echo '<input type="hidden" id="order" name="order" value="' . $this->_pagination_args['order'] . '" />';
 		echo '<input type="hidden" id="orderby" name="orderby" value="' . $this->_pagination_args['orderby'] . '" />';
+		echo '<input type="hidden" id="xedit_action" name="xedit_action" value="update_skill_ajax" />';
+		echo '<input type="hidden" id="list_update_action" name="list_update_action" value="update_skillset_list_table_ajax" />';
 
 		parent::display();
 	}
@@ -340,7 +357,7 @@ class Skillset_List_Table extends WP_List_Table {
 	 */
 	function ajax_response() {
 
-		check_ajax_referer( 'ajax-skillset-table-nonce', '_ajax_skill_table_nonce' );
+		check_ajax_referer( 'ajax-ability-table-nonce', 'ability_table_nonce' );
 
 		$this->prepare_items();
 

@@ -79,6 +79,45 @@ while ( have_posts() ) : the_post(); ?>
 					
 					<?php  endwhile; endif; ?>
 			</div>
+			
+			<div id="abilities" class="row">
+				<h2>Skills</h2>
+				<?php 
+					$skillset = Skillset::getAll( 'level', 'DESC' );
+					
+					foreach($skillset as $skill) {
+				?>
+					<div class="ability small-12 medium-6 columns">
+						<p><?php echo $skill->name; ?></p>
+						<div class="progress" role="progressbar" tabindex="0" aria-valuenow="<?php echo $skill->level; ?>" aria-valuemin="0" aria-valuemax="100">
+							<div class="progress-meter" style="width: <?php echo $skill->level; ?>%"></div>
+						</div>
+					</div>
+				
+				
+				<?php } ?>
+				
+				<h2>Tools</h2>
+				<?php 
+					$toolbox = Toolbox::getAll( 'level', 'DESC' );
+					
+					foreach($toolbox as $tool) {
+				?>
+					<div class="ability small-12 medium-6 columns">
+						<p><?php 
+							echo $tool->name; 
+							if($tool->experience != 0 )
+								echo ' <small>' . $tool->experience . ' years</small>';
+						?></p>
+						<div class="progress" role="progressbar" tabindex="0" aria-valuenow="<?php echo $tool->level; ?>" aria-valuemin="0" aria-valuemax="100">
+							<div class="progress-meter" style="width: <?php echo $tool->level; ?>%"></div>
+						</div>
+					</div>
+				
+				
+				<?php } ?>
+			
+			</div>
 				
 
 

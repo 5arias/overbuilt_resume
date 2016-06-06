@@ -73,6 +73,21 @@ abstract class Abilities {
 	 * @return html
 	 */
     abstract public function list_table_config();
+    
+    
+    
+    /**
+	 * getAll entries
+	 *
+	 * Returns class objects for all available entries for use on frontend
+	 * 
+	 * @arg string $orderby
+	 * @arg string $order 
+	 * @return objects $entries
+	 *
+	 * NOTE TO SELF: $wpdb->prepare was giving a weird syntax error, so for the time being, the args are sanitized. Fix it later.
+	 */
+    //abstract public static function getAll();
 	
 	
 	 
@@ -94,7 +109,7 @@ abstract class Abilities {
      *
      * @var string $prefix + $slug.
      */
-	protected $table_name;
+	public $table_name;
 	
 	
 	/**
@@ -399,36 +414,18 @@ abstract class Abilities {
     }
     
     
-    
-    
     /**
-	 * getAll entries
-	 *
-	 * Returns class objects for all available entries for use on frontend
+	 * Display Admin Notice
 	 * 
-	 * @arg string $orderby
-	 * @arg string $order 
-	 * @return objects $entries
+	 * Generates the html code for the admin notice to be displayed
 	 *
-	 * NOTE TO SELF: $wpdb->prepare was giving a weird syntax error, so for the time being, the args are sanitized. Fix it later.
+	 * @param string $type (success | error | warning )
+	 * @param string $message
+	 * @return HTML
 	 */
-    public static function getAll( $orderby = 'id', $order = 'ASC') {
-	    
-	    global $wpdb;
-	    
-	    //Sanitize Input
-	    $orderby = sanitize_text_field($orderby);
-	    $order = sanitize_text_field($order);
-	    
-	    //Get class table since it's used for the table name.
-	    $class = strtolower(__CLASS__);
-	    
-	    // Run Query 
-	    $entries = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}{$class} ORDER BY {$orderby} {$order}" );
-	    
-	    return $entries; 
+    public function display_admin_notice($type, $message) {
+	    echo '<div class="notice notice-' . $type .' is-dismissible"><p>' . $message . '</p></div>';
     }
-    
     
     
     

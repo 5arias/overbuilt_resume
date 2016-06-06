@@ -12,7 +12,6 @@
  
 add_action( 'init', array( 'Toolbox', 'init' ));
  
-
 class Toolbox extends Abilities {
 	
 	/**
@@ -327,8 +326,39 @@ class Toolbox extends Abilities {
 		wp_die();
     }
     
-    public function display_admin_notice($type, $message) {
-	    echo '<div class="notice notice-' . $type .' is-dismissible"><p>' . $message . '</p></div>';
+    
+    /**
+	 * getAll entries
+	 *
+	 * Returns class objects for all available entries for use on frontend
+	 * 
+	 * @arg string $orderby
+	 * @arg string $order 
+	 * @return objects $entries
+	 *
+	 * NOTE TO SELF: $wpdb->prepare was giving a weird syntax error, so for the time being, the args are sanitized. Fix it later.
+	 */
+    public static function getAll( $orderby = 'id', $order = 'ASC') {
+	    
+	    global $wpdb;
+	    
+	    //Sanitize Input
+	    $orderby = sanitize_text_field($orderby);
+	    $order = sanitize_text_field($order);
+	    
+	    //Get class table since it's used for the table name.
+	    $class = strtolower(__CLASS__);
+	    
+	    // Run Query 
+	    $entries = $wpdb->get_results( "SELECT * FROM {$wpdb->prefix}{$class} ORDER BY {$orderby} {$order}" );
+	    
+	    return $entries; 
     }
+    
+    
+    
+    //public function display_admin_notice($type, $message) {
+	//    echo '<div class="notice notice-' . $type .' is-dismissible"><p>' . $message . '</p></div>';
+    //}
     
 }

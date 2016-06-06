@@ -32,10 +32,10 @@ var list = {
 	 */
 	init: function() {
 		
-		var updateAction = $('#list_update_action').val();
+		var xeditAction = $('#xedit_action').val();
 		
 		$('.xedit').editable({
-	    	url	: '/wp-admin/admin-ajax.php?action='+updateAction,
+	    	url	: '/wp-admin/admin-ajax.php?action='+xeditAction,
 			mode : 'inline',
 			success: function(response) {
         		//$('#notice-wrapper').html('<div class="notice notice-' + response.type + ' is-dismissible"><p>' + response.message + '</p></div>');
@@ -105,14 +105,15 @@ var list = {
 	 * @param    object    data The data to pass through AJAX
 	 */
 	update: function( data ) {
+		var updateAction = $('#list_update_action').val();
+		
 		$.ajax({
-			// /wp-admin/admin-ajax.php
 			url: '/wp-admin/admin-ajax.php',
 			// Add action and nonce to our collected data
 			data: $.extend(
 				{
-					_ajax_tool_table_nonce: $('#_ajax_tool_table_nonce').val(),
-					action: 'update_toolbox_list_table_ajax',
+					ability_table_nonce: $('#ability_table_nonce').val(),
+					action: updateAction,
 				},
 				data
 			),
