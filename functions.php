@@ -20,8 +20,6 @@ require('inc/theme_setup.php');
   Custom Classes
   @since overbuilt_resume 0.1.0
 ======================================================================================*/
-require('inc/classes/cpt.php');
-require('inc/classes/metabox.php');
 require('inc/classes/abilities.php');
 require('inc/classes/skillset.php');
 require('inc/classes/skillset_list_table.php');
@@ -30,15 +28,20 @@ require('inc/classes/toolbox_list_table.php');
 
 
 
+//Autoload CPT and RCMB classes
+spl_autoload_register(function ($class_name) {
+    include 'inc/classes/' . $class_name . '.php';
+});
+
 /*=====================================================================================
   Enqueue our fonts  
   @since overbuilt_resume 0.1.0
-======================================================================================*
+======================================================================================*/
 function overbuilt_resume_fonts() {
 	//Fonts
-	//wp_enqueue_style('overbuilt_resume-opensans', '//fonts.googleapis.com/css?family=Open+Sans:300,600, 700' );
-	//wp_enqueue_style('overbuilt_resume-fontawesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css' );
-	//wp_enqueue_style('overbuilt_resume-fonts', get_template_directory_uri() . '/inc/css/fonts.css' );
+	wp_enqueue_style('font-unicaone', '//fonts.googleapis.com/css?family=Unica+One' );
+	wp_enqueue_style('font-vollkorn', '//fonts.googleapis.com/css?family=Vollkorn:700,400italic,400' );
+	wp_enqueue_style('font-fontawesome', get_template_directory_uri() . '/inc/css/font-awesome.min.css' );
 
 }
 add_action( 'wp_enqueue_scripts', 'overbuilt_resume_fonts' );
@@ -245,6 +248,8 @@ $work_history_metaboxes = new RCMB(
 
 
 
+
+
 /*=====================================================================================
   Portfolio Custom Post Type
 ======================================================================================*/
@@ -258,7 +263,8 @@ $portfolio = new CPT(
 	array(
 		'menu_position'	 => 23,
 		'menu_icon'		 => 'dashicons-vault',
-		'supports' 		 => array('title', 'post_tag')
+		'taxonomies' 	 => array('post_tag'),
+		'supports' 		 => array('title')
 		)
 );
 
@@ -268,12 +274,12 @@ $portfolio->columns(
 		'screenshot'	=> __('Screenshot'),
 		'title' 		=> __('Title'),
 		'meta_rcmb_website'   => __('Website'),
-		'date' 			 => __('Date')
+		'date' 			=> __('Date')
 ));
 
 $portfolio->populate_column('screenshot', function($column, $post) {
 	
-	$attach_id = $post->rcmb_portfolio_screenshot;
+	$attach_id = $post->rcmb_screenshot;
 	if ($attach_id)
 		echo wp_get_attachment_image( $attach_id , 'thumbnail');
 

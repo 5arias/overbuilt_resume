@@ -15,6 +15,20 @@ jQuery(document).ready( function($){
 	});
 	
 	
+/*
+*	X-editable	
+*	   
+*/
+    $(document).on('click', '.xedit-button', function(e) {
+	    e.stopPropagation();
+	    
+    	var pk = $(this).attr('data-pk');
+    	var column = $(this).attr('for');
+
+    	$('.xedit[data-pk="'+ pk +'"][data-name="'+ column +'"]').editable('toggle');
+    });
+	
+	
 var list = {
 
 	/**
@@ -213,23 +227,6 @@ list.init();
         // always return false to prevent standard browser submit and page navigation 
         return false; 
     }); 
-    
-    
-    
-    
-    
-/*
-*	X-editable	
-*	   
-*/
-    $(document).on('click', '.xedit-button', function(e) {
-	    e.stopPropagation();
-	    
-    	var pk = $(this).attr('data-pk');
-    	var column = $(this).attr('for');
-
-    	$('.xedit[data-pk="'+ pk +'"][data-name="'+ column +'"]').editable('toggle');
-    });
     
 	
 });

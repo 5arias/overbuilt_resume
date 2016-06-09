@@ -149,6 +149,7 @@ function overbuilt_resume_scripts() {
 	wp_enqueue_script( 'overbuilt_resume-skip-link-focus-fix', get_template_directory_uri() . '/inc/js/skip-link-focus-fix.js', array(), '20151215', true );
 	wp_enqueue_script( 'overbuilt_resume-foundation-js', get_template_directory_uri() . '/inc/js/foundation.min.js', array('jquery'), '', true );
 	wp_enqueue_script( 'overbuilt_resume-what-input', get_template_directory_uri() . '/inc/js/what-input.js', array('jquery'), '', true );
+	wp_enqueue_script( 'overbuilt_resume-scrollfire-js', get_template_directory_uri() . '/inc/js/jquery.scrollfire.min.js', array('jquery'), '', true );
 	wp_enqueue_script( 'overbuilt_resume-app', get_template_directory_uri() . '/inc/js/app.js', array('jquery'), '', true );
 
 }

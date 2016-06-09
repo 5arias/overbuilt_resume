@@ -99,7 +99,7 @@
 		
 		//WP action for adding metaboxes to post type
 		add_meta_box( $this->id, 					//id
-			__($this->title, 'overbuilt_resume'),		//box name
+			__($this->title, 'overbuilt_resume'),	//box name
 			array($this,'rcmb_display_meta_box'), 	//display function
 			$this->post_type, 						//content type 
 			'normal', 								//context
@@ -230,7 +230,7 @@
 					);
 					break;
 				case 'editor':
-					$content = $db_value ?: '';
+					$content = $db_value ? html_entity_decode($db_value) : '';
 					$settings = array(
 						'media_buttons' => false,
 						'textarea_rows' => 5,
