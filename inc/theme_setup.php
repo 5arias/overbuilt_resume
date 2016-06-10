@@ -96,9 +96,9 @@ function overbuilt_resume_head_cleanup() {
 	remove_action( 'wp_print_styles', 'print_emoji_styles' );
 	
 	// Disable REST API since it's not being used for this project
-	//remove_action( 'wp_head', 'wp_oembed_add_host_js' );
-	//remove_action( 'rest_api_init', 'wp_oembed_register_route');
-	//remove_filter( 'oembed_dataparse', 'wp_filter_oembed_result', 10);
+	remove_action( 'wp_head', 'wp_oembed_add_host_js' );
+	remove_action( 'rest_api_init', 'wp_oembed_register_route');
+	remove_filter( 'oembed_dataparse', 'wp_filter_oembed_result', 10);
 	
 }
 
@@ -135,6 +135,23 @@ add_action( 'wp_loaded', 'remove_add_mod_hatom_data' );
 
 
 /*=====================================================================================
+  Enqueue our fonts  
+  @since overbuilt_resume 0.1.0
+======================================================================================*/
+function overbuilt_resume_fonts() {
+	//Fonts
+	wp_enqueue_style('font-unicaone', '//fonts.googleapis.com/css?family=Unica+One' );
+	wp_enqueue_style('font-vollkorn', '//fonts.googleapis.com/css?family=Vollkorn:700,400italic,400' );
+	wp_enqueue_style('font-fontawesome', get_template_directory_uri() . '/inc/css/font-awesome.min.css' );
+
+}
+add_action( 'wp_enqueue_scripts', 'overbuilt_resume_fonts' );
+
+
+
+
+
+/*=====================================================================================
   Enqueue our scripts and styles
   @since overbuilt_resume 0.1.0
 ======================================================================================*/
@@ -158,12 +175,193 @@ add_action( 'wp_enqueue_scripts', 'overbuilt_resume_scripts' );
 
 
 
-
 /*=====================================================================================
-  Custom template tags for this theme.
+  Custom Classes
   @since overbuilt_resume 0.1.0
 ======================================================================================*/
-require get_template_directory() . '/inc/template-tags.php';
+/*
+ * Singleton style self instantiated classes 
+ */
+ 
+//Abstract
+require('classes/abilities.php');
+
+//Skillset
+require('classes/skillset.php');
+require('classes/skillset_list_table.php');
+
+//Toolbox
+require('classes/toolbox.php');
+require('classes/toolbox_list_table.php');
+
+//User Profile Mods
+require('classes/profilemods.php');
+
+
+/*
+ * Autoloads non-singleton classes such as CPT and RCMB
+ *
+ * NOTE: the singleton classes need to stay above this function 
+ * otherwise it will try to include classes like WP_List_Table too
+ */
+spl_autoload_register(function ($class_name) {
+    include 'classes/' . $class_name . '.php';
+});
+
+
+
+
+
+/*=====================================================================================
+  Work History Custom Post Type
+  
+  Uses the CPT and RCMB Classes
+  @link http://github.com/jjgrainger/wp-custom-post-type-class/
+======================================================================================*/
+$history = new CPT(
+	array(
+    	'post_type_name' => 'work_history',
+		'singular' 		 => 'Work History',
+		'plural' 		 => 'Work History',
+		'slug' 		 	 => 'work_history'
+		),
+	array(
+		'menu_position'	 => 20,
+		'menu_icon'		 => 'dashicons-businessman',
+		'supports' 		 => array('title')
+		)
+);
+
+/*
+ * Define Columns
+ *
+ * uses the meta_tag to determine data to load
+ */
+$history->columns(
+	array(
+    	'cb' 			 		 => '<input type="checkbox" />',
+		'meta_rcmb_start_date'	 => __('Start Date'),
+		'meta_rcmb_end_date'  	 => __('End Date'),
+		'title' 		 		 => __('Title'),
+		'meta_rcmb_organization' => __('Organization'),
+		'meta_rcmb_location'   	 => __('Location'),
+		'meta_rcmb_website_url'  => __('Website'),
+		'organization_logo'		 => __('Logo'),
+		'date' 			 		 => __('Date')
+));
+
+/*
+ * Populate Logo Column with thumbnail
+ */
+$history->populate_column('organization_logo', function($column, $post) {
+	
+	$attach_id = $post->rcmb_organization_logo;
+	if ($attach_id)
+		echo wp_get_attachment_image( $attach_id , 'thumbnail');
+
+});
+
+/*
+ * Define Sortable Columns
+ */
+$history->sortable(array(
+    'meta_rcmb_start_date' 	 => array('rcmb_start_date', true),
+    'meta_rcmb_end_date' 	 => array('rcmb_end_date', true),
+    'meta_rcmb_organization' => array('rcmb_organization', true),
+    'meta_rcmb_location'	 => array('rcmb_location', true)
+));
+
+
+/*
+ * Add Custom metaboxes
+ */
+ $work_history_metaboxes = new RCMB(
+	'work_history',
+	'Work Experience', 
+	array(
+		'Organization Logo' => 'image',
+		'Organization' 	    => 'text',
+		'Start Date' 	    => 'text',
+		'End Date' 		    => 'text',
+		'Location' 		    => 'text',
+		'Website URL' 	    => 'text',
+		'Job Description'   => 'editor'
+		)
+	);
+
+
+
+
+
+/*=====================================================================================
+  Portfolio Custom Post Type
+  
+  Uses the CPT and RCMB Classes
+  @link http://github.com/jjgrainger/wp-custom-post-type-class/
+======================================================================================*/
+$portfolio = new CPT(
+	array(
+    	'post_type_name' => 'portfolio',
+		'singular' 		 => 'Portfolio Item',
+		'plural' 		 => 'Portfolio',
+		'slug' 		 	 => 'portfolio'
+		),
+	array(
+		'menu_position'	 => 23,
+		'menu_icon'		 => 'dashicons-vault',
+		'taxonomies' 	 => array('post_tag'),
+		'supports' 		 => array('title')
+		)
+);
+
+
+/*
+ * Define Columns
+ *
+ * uses the meta_tag to determine data to load
+ */
+$portfolio->columns(
+	array(
+    	'cb' 			=> '<input type="checkbox" />',
+		'screenshot'	=> __('Screenshot'),
+		'title' 		=> __('Title'),
+		'meta_rcmb_website'   => __('Website'),
+		'date' 			=> __('Date')
+));
+
+
+/*
+ * Populate Screenshot Column with thumbnail
+ */
+$portfolio->populate_column('screenshot', function($column, $post) {
+	
+	$attach_id = $post->rcmb_screenshot;
+	if ($attach_id)
+		echo wp_get_attachment_image( $attach_id , 'thumbnail');
+
+});
+
+
+/*
+ * Define Sortable Columns
+ */
+$portfolio->sortable(array(
+    'meta_rcmb_website' 	 => array('rcmb_website', true)
+));
+
+
+/*
+ * Add Custom metaboxes
+ */
+$portfolio_metaboxes = new RCMB(
+	'portfolio',
+	'Portfolio', 
+	array(
+		'Website URL' 	    	=> 'text',
+		'Website Description'   => 'editor',
+		'Screenshot' 			=> 'image'
+		)
+	);
 
  
  
