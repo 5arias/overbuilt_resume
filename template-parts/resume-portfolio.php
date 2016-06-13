@@ -18,7 +18,8 @@
 		<?php
 					
 			$args = array(
-				'post_type' => 'portfolio'
+				'post_type' => 'portfolio',
+				'order' 	=> 'ASC'
 			);
 					
 			$portfolio = new WP_Query( $args ); 
@@ -27,19 +28,33 @@
 				while ( $portfolio->have_posts() ) : $portfolio->the_post();
 		?>
 				
-				<div class="small-12 medium-6 columns">
+				<div class="small-12 medium-12 large-6 columns portfolio-item">
+					<a href="<?php echo $post->rcmb_website_url; ?>" target="_blank">
+						
+						<?php echo wp_get_attachment_image( $post->rcmb_screenshot , 'large'); ?>
 					
-					<?php echo wp_get_attachment_image( $post->rcmb_screenshot , 'large'); ?>
-					
-					<div class="overlay" style="display: none;">
-						<h3><?php the_title(); ?></h3>
-						<p class="tags"><?php get_post_taxonomies('post_tag'); ?></p>
-								
-						<a href="<?php echo $post->rcmb_website; ?>" target="_blank">Link</a>
-								
-						<a rel="" target="_blank">Link</a>
-								
-					</div>
+						<div class="overlay">
+							<h3><?php the_title(); ?></h3>
+							<p class="tags">
+								<?php 
+									$tags = wp_get_post_terms( $post->ID, 'post_tag', array('fields' => 'names'));
+									
+									$count = count($tags);
+									$i = 1;
+									
+									foreach($tags as $tag){
+										if($i != $count)
+											echo $tag . '<span class="divider hide-for-small-only">|</span><span class="show-for-small-only"><br /></span>';
+										else
+											echo $tag;
+											
+										$i++;
+									}
+									
+								?>
+							</p>
+						</div>
+					</a>
 							
 				</div>
 					

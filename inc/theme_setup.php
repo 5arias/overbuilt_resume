@@ -325,7 +325,7 @@ $portfolio->columns(
     	'cb' 			=> '<input type="checkbox" />',
 		'screenshot'	=> __('Screenshot'),
 		'title' 		=> __('Title'),
-		'meta_rcmb_website'   => __('Website'),
+		'meta_rcmb_website_url'   => __('Website'),
 		'date' 			=> __('Date')
 ));
 
@@ -346,7 +346,7 @@ $portfolio->populate_column('screenshot', function($column, $post) {
  * Define Sortable Columns
  */
 $portfolio->sortable(array(
-    'meta_rcmb_website' 	 => array('rcmb_website', true)
+    'meta_rcmb_website_url' 	 => array('rcmb_website_url', true)
 ));
 
 
