@@ -20,6 +20,8 @@
 	</footer><!-- #colophon -->
 </div><!-- #page -->
 
+<a href="javascript:" id="backtotop" class="hide-for-small-only"><i class="fa fa-chevron-up" aria-hidden="true"></i></a>
+
 <?php wp_footer(); ?>
 
 </body>

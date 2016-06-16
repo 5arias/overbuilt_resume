@@ -43,9 +43,10 @@
 	## Galleries
 
 # General Theme Content
+	## Back to Top button
+	## Vertical Alignment
 # User Profile
 # Banner
-	## Vertical Alignment
 	## Mask 2
 # About
 # Work Experience
@@ -330,9 +331,70 @@ span.divider { padding: 0 0.750rem; }
 
 
 /*=====================================================================================
+## Back to Top Button
+======================================================================================*/
+#backtotop {
+	display: none;
+	width: 50px;
+    height: 50px;
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background: rgba(0, 0, 0, 0.7);
+    text-decoration: none;
+    -webkit-border-radius: 35px;
+    -moz-border-radius: 35px;
+    border-radius: 35px;
+    -webkit-transition: all 0.3s linear;
+    -moz-transition: all 0.3s ease;
+    -ms-transition: all 0.3s ease;
+    -o-transition: all 0.3s ease;
+    transition: all 0.3s ease;
+}
+#backtotop i {
+    color: #fff;
+    margin: 0;
+    position: relative;
+    left: 16px;
+    top: 13px;
+    font-size: 1.188em;
+}
+#backtotop:hover {
+    background: rgba(0, 0, 0, 0.9);
+}
+#backtotop:hover i {
+    color: #fff;
+}
+
+
+
+/*=====================================================================================
+## Vertical Alignment (From Materialize CSS Framework)
+======================================================================================*/
+
+.valign-wrapper {
+	display: -webkit-flex;
+	display: -ms-flexbox;
+	display: flex;
+	-webkit-align-items: center;
+	-ms-flex-align: center;
+	align-items: center;
+}
+
+.valign-wrapper .valign { display: block; width: 100%;}
+
+
+
+
+
+
+/*=====================================================================================
 # User Profile
 ======================================================================================*/
  #wp-education-wrap { max-width: 15rem; }
+
+
+
 
 
 
@@ -409,23 +471,6 @@ span.divider { padding: 0 0.750rem; }
 
 
 /*=====================================================================================
-## Vertical Alignment (From Materialize CSS Framework)
-======================================================================================*/
-
-.valign-wrapper {
-	display: -webkit-flex;
-	display: -ms-flexbox;
-	display: flex;
-	-webkit-align-items: center;
-	-ms-flex-align: center;
-	align-items: center;
-}
-
-.valign-wrapper .valign { display: block; width: 100%;}
-
-
-
-/*=====================================================================================
 ## Mask 2
 @see https://codyhouse.co/gem/animated-intro-section/
 ======================================================================================*/
@@ -437,7 +482,7 @@ span.divider { padding: 0 0.750rem; }
 .mask-2.site-branding .content-wrapper {
   position: relative;
   width: 100%;
-  max-width: 750px;
+  max-width: 46.875em;
   padding: 1.5em 0;
   overflow: hidden;
 }
