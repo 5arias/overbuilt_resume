@@ -202,6 +202,25 @@ add_action( 'template_redirect', 'redirect_all_to_home' );
 
 
 /*=====================================================================================
+  Remove unneccessary menu optioins from the Admin Menu
+  
+  Some default wordpress menu options aren't relevant for this particular project,
+  so I'm cleaning up the admin menu for the sake of it. I like the cleaner look.
+  
+  @since overbuilt_resume 0.1.0
+======================================================================================*/
+function remove_unused_menu_pages() {
+    remove_menu_page( 'edit.php' );                   //Posts
+    remove_menu_page( 'edit.php?post_type=page' );    //Pages
+	remove_menu_page( 'edit-comments.php' );          //Comments
+	remove_menu_page( 'tools.php' );                  //Tools
+}
+add_action( 'admin_menu', 'remove_unused_menu_pages' );
+
+
+
+
+/*=====================================================================================
   Custom Classes
   @since overbuilt_resume 0.1.0
 ======================================================================================*/
