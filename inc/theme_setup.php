@@ -250,6 +250,7 @@ require('classes/profilemods.php');
  * otherwise it will try to include classes like WP_List_Table too
  */
 spl_autoload_register(function ($class_name) {
+	$class_name = strtolower($class_name);
     include 'classes/' . $class_name . '.php';
 });
 
