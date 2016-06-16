@@ -117,6 +117,14 @@ class ProfileMods {
 	
 		<table id="extra_about_fields" class="form-table">
 	
+			<tr class="user-bachelor-degree-wrap">
+				<th><label for="bachelor_degree">Bachelor Degree</label></th>
+				<td><input type="text" name="bachelor_degree" id="bachelor_degree" value="<?php echo esc_attr( get_the_author_meta( 'bachelor_degree', $user->ID ) ); ?>" class="regular-text" /></td>
+			</tr>
+			<tr class="user-master-degree-wrap">
+				<th><label for="master_degree">Master Degree</label></th>
+				<td><input type="text" name="master_degree" id="master_degree" value="<?php echo esc_attr( get_the_author_meta( 'master_degree', $user->ID ) ); ?>" class="regular-text" /></td>
+			</tr>
 			<tr class="user-about_nickname-wrap">
 				<th><label for="about_nickname">About your nickname</label></th>
 				<td><input type="text" name="about_nickname" id="about_nickname" value="<?php echo esc_attr( get_the_author_meta( 'about_nickname', $user->ID ) ); ?>" class="regular-text" /></td>
@@ -171,6 +179,8 @@ class ProfileMods {
 		if ( !current_user_can( 'edit_user', $user_id ) )
 			return false;
 	
+		update_usermeta( $user_id, 'bachelor_degree', sanitize_text_field( $_POST['bachelor_degree'] ) );
+		update_usermeta( $user_id, 'master_degree', sanitize_text_field( $_POST['master_degree'] ) );
 		update_usermeta( $user_id, 'about_nickname', sanitize_text_field( $_POST['about_nickname'] ) );
 		update_usermeta( $user_id, 'hometown', sanitize_text_field( $_POST['hometown'] ) );
 		update_usermeta( $user_id, 'residence', sanitize_text_field( $_POST['residence'] ) );
@@ -216,7 +226,7 @@ class ProfileMods {
 	    
 	    //load wp.media and custom loader scripts
 	    wp_enqueue_media();
-	    wp_enqueue_script('add_meta_image', get_template_directory_uri() . '/inc/js/add_media_uploader.js', array('jquery'));
+	    wp_enqueue_script('add_meta_image', get_template_directory_uri() . '/inc/js/add_media_uploader.min.js', array('jquery'));
 	}
 	
 	

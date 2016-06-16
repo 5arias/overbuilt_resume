@@ -142,7 +142,7 @@ function overbuilt_resume_fonts() {
 	//Fonts
 	wp_enqueue_style('font-unicaone', '//fonts.googleapis.com/css?family=Unica+One' );
 	wp_enqueue_style('font-vollkorn', '//fonts.googleapis.com/css?family=Vollkorn:700,400italic,400' );
-	wp_enqueue_style('font-fontawesome', get_template_directory_uri() . '/inc/css/font-awesome.min.css' );
+	wp_enqueue_style('font-fontawesome', get_template_directory_uri() . '/inc/vendors/font-awesome/font-awesome.min.css' );
 
 }
 add_action( 'wp_enqueue_scripts', 'overbuilt_resume_fonts' );
@@ -156,21 +156,47 @@ add_action( 'wp_enqueue_scripts', 'overbuilt_resume_fonts' );
   @since overbuilt_resume 0.1.0
 ======================================================================================*/
 function overbuilt_resume_scripts() {
+	
+	//Foundation for Sites
+	wp_enqueue_style( 'overbuilt_resume-foundation-css', get_template_directory_uri() . '/inc/vendors/foundation/foundation.min.css' );
+	wp_enqueue_script( 'overbuilt_resume-foundation-js', get_template_directory_uri() . '/inc/vendors/foundation/foundation.min.js', array('jquery'), '', true );
+	wp_enqueue_script( 'overbuilt_resume-what-input', get_template_directory_uri() . '/inc/vendors/foundation/what-input.js', array('jquery'), '', true );
+	
+	// jQuery Scrollfire
+	wp_enqueue_script( 'overbuilt_resume-scrollfire-js', get_template_directory_uri() . '/inc/vendors/scrollfire/jquery.scrollfire.min.js', array('jquery'), '', true );
+
+	
 	//CSS
-	wp_enqueue_style( 'overbuilt_resume-underscores', get_template_directory_uri() . '/inc/css/underscores.css' );
-	wp_enqueue_style( 'overbuilt_resume-foundation-css', get_template_directory_uri() . '/inc/css/foundation.min.css' );
+	wp_enqueue_style( 'overbuilt_resume-default', get_template_directory_uri() . '/inc/css/theme-default.min.css' );
 	wp_enqueue_style( 'overbuilt_resume-style', get_stylesheet_uri() );
 	
 	//JS
-	wp_enqueue_script( 'overbuilt_resume-navigation', get_template_directory_uri() . '/inc/js/navigation.js', array(), '20151215', true );
-	wp_enqueue_script( 'overbuilt_resume-skip-link-focus-fix', get_template_directory_uri() . '/inc/js/skip-link-focus-fix.js', array(), '20151215', true );
-	wp_enqueue_script( 'overbuilt_resume-foundation-js', get_template_directory_uri() . '/inc/js/foundation.min.js', array('jquery'), '', true );
-	wp_enqueue_script( 'overbuilt_resume-what-input', get_template_directory_uri() . '/inc/js/what-input.js', array('jquery'), '', true );
-	wp_enqueue_script( 'overbuilt_resume-scrollfire-js', get_template_directory_uri() . '/inc/js/jquery.scrollfire.min.js', array('jquery'), '', true );
-	wp_enqueue_script( 'overbuilt_resume-app', get_template_directory_uri() . '/inc/js/app.js', array('jquery'), '', true );
+	wp_enqueue_script( 'overbuilt_resume-app', get_template_directory_uri() . '/inc/js/app.min.js', array('jquery'), '', true );
 
 }
 add_action( 'wp_enqueue_scripts', 'overbuilt_resume_scripts' );
+
+
+
+
+
+/*=====================================================================================
+  Redirect All front tend pages to homepage
+  
+  Since this is meant to be a single page site, there's no need to allow access
+  to any pages other than the homepage.
+  
+  @since overbuilt_resume 0.1.0
+======================================================================================*/
+function redirect_all_to_home()
+{
+    if( !is_home() )
+    {
+        wp_redirect( home_url() );
+        exit();
+    }
+}
+add_action( 'template_redirect', 'redirect_all_to_home' );
 
 
 

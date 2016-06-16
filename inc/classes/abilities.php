@@ -320,10 +320,10 @@ abstract class Abilities {
 	public function enqueue_style() {
 		
 		// Default Class Styles
-		wp_enqueue_style( $this->slug . '_css', get_template_directory_uri() . '/inc/css/abilities-admin.css');
+		wp_enqueue_style( $this->slug . '_css', get_template_directory_uri() . '/inc/css/abilities-admin.min.css');
 		
 		// X-Editable Styles
-		wp_enqueue_style( $this->slug . '_xedit', get_template_directory_uri() . '/inc/css/jqueryui-editable.css');
+		wp_enqueue_style( $this->slug . '_xedit', get_template_directory_uri() . '/inc/vendors/xeditable/jqueryui-editable.css');
 	}
 	
 	/**
@@ -337,10 +337,10 @@ abstract class Abilities {
 		wp_enqueue_script( 'jquery-form' );
 		
 		// Load X-Editable
-		wp_enqueue_script( $this->slug . '_xedit', get_template_directory_uri() . '/inc/js/jqueryui-editable.min.js', array('jquery', 'jquery-ui-button', 'jquery-ui-tooltip'), FALSE, TRUE);
+		wp_enqueue_script( $this->slug . '_xedit', get_template_directory_uri() . '/inc/vendors/xeditable/jqueryui-editable.min.js', array('jquery', 'jquery-ui-button', 'jquery-ui-tooltip'), FALSE, TRUE);
 		
 		// Toolbox class scripts
-		wp_enqueue_script( $this->slug . '_js', get_template_directory_uri() . '/inc/js/abilities-admin.js', array('jquery'), FALSE, TRUE);
+		wp_enqueue_script( $this->slug . '_js', get_template_directory_uri() . '/inc/js/abilities-admin.min.js', array('jquery'), FALSE, TRUE);
 	}
 	
 	

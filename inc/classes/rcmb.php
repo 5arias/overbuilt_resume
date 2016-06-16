@@ -132,7 +132,7 @@
 			
 				//Enqueue wp.media and custom loader script
 				wp_enqueue_media();
-				wp_enqueue_script('add_meta_image', get_template_directory_uri() . '/inc/js/add_media_uploader.js', array('jquery'));
+				wp_enqueue_script('add_meta_image', get_template_directory_uri() . '/inc/js/add_media_uploader.min.js', array('jquery'));
 			}
 		}
 		
