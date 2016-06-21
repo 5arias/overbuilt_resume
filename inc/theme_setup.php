@@ -157,6 +157,10 @@ add_action( 'wp_enqueue_scripts', 'overbuilt_resume_fonts' );
 ======================================================================================*/
 function overbuilt_resume_scripts() {
 	
+	//Google Analytics
+	wp_enqueue_script('google-analytics', get_template_directory_uri() . '/inc/js/google_analytics.js', '', '', true);
+	
+	
 	//Foundation for Sites
 	wp_enqueue_style( 'overbuilt_resume-foundation-css', get_template_directory_uri() . '/inc/vendors/foundation/foundation.min.css' );
 	wp_enqueue_script( 'overbuilt_resume-foundation-js', get_template_directory_uri() . '/inc/vendors/foundation/foundation.min.js', array('jquery'), '', true );
@@ -175,8 +179,6 @@ function overbuilt_resume_scripts() {
 
 }
 add_action( 'wp_enqueue_scripts', 'overbuilt_resume_scripts' );
-
-
 
 
 
