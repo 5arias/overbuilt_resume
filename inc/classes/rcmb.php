@@ -99,7 +99,7 @@
 		
 		//WP action for adding metaboxes to post type
 		add_meta_box( $this->id, 					//id
-			__($this->title, 'overbuilt_resume'),	//box name
+			__($this->title, 'spr'),	//box name
 			array($this,'rcmb_display_meta_box'), 	//display function
 			$this->post_type, 						//content type 
 			'normal', 								//context

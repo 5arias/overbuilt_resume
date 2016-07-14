@@ -6,7 +6,7 @@
  *
  * @link https://developer.wordpress.org/themes/basics/template-files/#template-partials
  *
- * @package Overbuilt_Resume
+ * @package WP_Single_Page_Resume
  */
 
 ?><!DOCTYPE html>
@@ -22,11 +22,11 @@
 
 <body <?php body_class(); ?>>
 <div id="page" class="site">
-	<a class="skip-link screen-reader-text" href="#main"><?php esc_html_e( 'Skip to content', 'overbuilt_resume' ); ?></a>
+	<a class="skip-link screen-reader-text" href="#main"><?php esc_html_e( 'Skip to content', 'spr' ); ?></a>
 	
 	<?php if( !is_front_page()) : ?>
 	<nav id="site-navigation" class="main-navigation" role="navigation">
-		<button class="menu-toggle" aria-controls="primary-menu" aria-expanded="false"><?php esc_html_e( 'Primary Menu', 'overbuilt_resume' ); ?></button>
+		<button class="menu-toggle" aria-controls="primary-menu" aria-expanded="false"><?php esc_html_e( 'Primary Menu', 'spr' ); ?></button>
 		<?php wp_nav_menu( array( 'theme_location' => 'primary', 'menu_id' => 'primary-menu' ) ); ?>
 	</nav><!-- #site-navigation -->
 	<?php endif; ?>

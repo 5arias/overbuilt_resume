@@ -1,9 +1,9 @@
-[![Build Status](https://travis-ci.org/Automattic/_s.svg?branch=master)](https://travis-ci.org/Automattic/_s)
+[![Build Status](https://travis-ci.org/5arias/wp_single_page_resume.svg?branch=master)](https://travis-ci.org/5arias/wp_single_page_resume)
 
-Overbuilt Resume
+My Single Page Resume Wordpress Theme
 ===
 
-Overbuilt Resume is a responsive, single page resumé theme for web developers and designers. Based on the `_s` starter theme and Foundation for Sites (F6) css framework, this theme is not meant to act as a parent theme but as a standalone. Included are section for your biography, work history, skillset and toolbox ( w/ratings ), and contact information.
+My resume is a responsive, single page Wordpress theme for web developers and designers. Based on the `_s` starter theme and Foundation for Sites (F6), this theme is not meant to act as a parent theme but as a standalone. 
 
 Here are some of the other more interesting things you'll find:
 
@@ -13,16 +13,21 @@ Here are some of the other more interesting things you'll find:
 * All information for the "About" section is located on your user profile.
 * Default Theme modifications can be found in the `inc/theme_setup.php` file.
 
+
 Getting Started
 ---------------
 
-1. Upload the overbuilt_resume.zip file
-2. Go to Appearance => Themes and select `Overbuilt Resume`
+1. Upload the wp_single_page_resume.zip file
+2. Go to Appearance => Themes and select `WP Single Page Resume`
 
 
 
-To Do List
+License
 ---------------
 
-A. The theme currently has Google Analytics hardcoded, I need to add a theme option for it instead.
-B. The user_id to determine the profile to use is currently hardcoded. Need to move this to a theme option.
+Use this theme however you like! If you make something cool or improve upon it, I'd love to get a link and check it out.
+
+
+GPLv2 License
+
+Copyright (c) [2016] [Stephen Brody]

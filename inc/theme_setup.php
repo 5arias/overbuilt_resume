@@ -2,15 +2,15 @@
 /**
  * Resume functions and definitions.
  *
- * @package Overbuilt_Resume
- * @since overbuilt_resume 0.1.0
+ * @package WP_Single_Page_Resume
+ * @since spr 0.1.0
  *
  * Thanks to the following sites for some great WP clean up functions.
  * @Matteo Spinelli - http://cubiq.org/clean-up-and-optimize-wordpress-for-your-next-theme
  *
  */
  
- if ( ! function_exists( 'overbuilt_resume_setup' ) ) :
+ if ( ! function_exists( 'spr_setup' ) ) :
 /**
  * Sets up theme defaults and registers support for various WordPress features.
  *
@@ -18,10 +18,10 @@
  * runs before the init hook. The init hook is too late for some features, such
  * as indicating support for post thumbnails.
  */
-function overbuilt_resume_setup() {
+function spr_setup() {
 	
 	// launching operation cleanup
-    add_action('init', 'overbuilt_resume_head_cleanup');
+    add_action('init', 'spr_head_cleanup');
     
     // Remove generator name from RSS feeds (just for good measure even though we removed the feed links above)
 	add_filter('the_generator', '__return_false');
@@ -33,7 +33,7 @@ function overbuilt_resume_setup() {
 	add_theme_support( 'title-tag' );
 	
 	// Makes theme available for translation.
-	load_theme_textdomain( 'overbuilt_resume', get_template_directory() . '/languages' );
+	load_theme_textdomain( 'spr', get_template_directory() . '/languages' );
 
 
 	// Enable support for Post Thumbnails on posts and pages. (shouldn't this be standard already? )
@@ -41,7 +41,7 @@ function overbuilt_resume_setup() {
 
 	// This theme uses wp_nav_menu() in one location.
 	register_nav_menus( array(
-		'primary' => esc_html__( 'Primary', 'overbuilt_resume' ),
+		'primary' => esc_html__( 'Primary', 'spr' ),
 	) );
 
 	//Switch default core markup for search form, comment form, and comments to output valid HTML5.
@@ -51,16 +51,16 @@ function overbuilt_resume_setup() {
 	add_theme_support( 'post-formats', array( 'aside', 'image', 'video', 'quote', 'link' ) );
 }
 endif;
-add_action( 'after_setup_theme', 'overbuilt_resume_setup' );
+add_action( 'after_setup_theme', 'spr_setup' );
 
 
 
 
 /*=====================================================================================
   The default wordpress head is a mess. Let's clean it up by removing all the junk we don't need.
-  @since overbuilt_resume 0.1.0
+  @since spr 0.1.0
 ======================================================================================*/
-function overbuilt_resume_head_cleanup() {
+function spr_head_cleanup() {
 	
 	// Remove post, comment, and category feeds
 	remove_action( 'wp_head', 'feed_links', 2 );
@@ -106,7 +106,7 @@ function overbuilt_resume_head_cleanup() {
 /*=====================================================================================
   Remove Query Strings from Static Resources to prevent issues with caching and CDNs
   @link https://www.keycdn.com/blog/speed-up-wordpress/#caching
-  @since overbuilt_resume 0.1.0
+  @since spr 0.1.0
 ======================================================================================*/
 function _remove_script_version( $src ){
 	$parts = explode( '?ver', $src );
@@ -122,7 +122,7 @@ add_filter( 'style_loader_src', '_remove_script_version', 15, 1 );
 
 /*=====================================================================================
   Remove hAtom filters from content container
-  @since overbuilt_resume 0.1.0
+  @since spr 0.1.0
 ======================================================================================*/
 function remove_add_mod_hatom_data() {
     remove_filter( 'the_content', 'add_mod_hatom_data' );
@@ -136,16 +136,16 @@ add_action( 'wp_loaded', 'remove_add_mod_hatom_data' );
 
 /*=====================================================================================
   Enqueue our fonts  
-  @since overbuilt_resume 0.1.0
+  @since spr 0.1.0
 ======================================================================================*/
-function overbuilt_resume_fonts() {
+function spr_fonts() {
 	//Fonts
 	wp_enqueue_style('font-unicaone', '//fonts.googleapis.com/css?family=Unica+One' );
 	wp_enqueue_style('font-vollkorn', '//fonts.googleapis.com/css?family=Vollkorn:700,400italic,400' );
 	wp_enqueue_style('font-fontawesome', get_template_directory_uri() . '/inc/vendors/font-awesome/font-awesome.min.css' );
 
 }
-add_action( 'wp_enqueue_scripts', 'overbuilt_resume_fonts' );
+add_action( 'wp_enqueue_scripts', 'spr_fonts' );
 
 
 
@@ -153,32 +153,32 @@ add_action( 'wp_enqueue_scripts', 'overbuilt_resume_fonts' );
 
 /*=====================================================================================
   Enqueue our scripts and styles
-  @since overbuilt_resume 0.1.0
+  @since spr 0.1.0
 ======================================================================================*/
-function overbuilt_resume_scripts() {
+function spr_scripts() {
 	
 	//Google Analytics
 	wp_enqueue_script('google-analytics', get_template_directory_uri() . '/inc/js/google_analytics.js', '', '', true);
 	
 	
 	//Foundation for Sites
-	wp_enqueue_style( 'overbuilt_resume-foundation-css', get_template_directory_uri() . '/inc/vendors/foundation/foundation.min.css' );
-	wp_enqueue_script( 'overbuilt_resume-foundation-js', get_template_directory_uri() . '/inc/vendors/foundation/foundation.min.js', array('jquery'), '', true );
-	wp_enqueue_script( 'overbuilt_resume-what-input', get_template_directory_uri() . '/inc/vendors/foundation/what-input.js', array('jquery'), '', true );
+	wp_enqueue_style( 'spr-foundation-css', get_template_directory_uri() . '/inc/vendors/foundation/foundation.min.css' );
+	wp_enqueue_script( 'spr-foundation-js', get_template_directory_uri() . '/inc/vendors/foundation/foundation.min.js', array('jquery'), '', true );
+	wp_enqueue_script( 'spr-what-input', get_template_directory_uri() . '/inc/vendors/foundation/what-input.js', array('jquery'), '', true );
 	
 	// jQuery Scrollfire
-	wp_enqueue_script( 'overbuilt_resume-scrollfire-js', get_template_directory_uri() . '/inc/vendors/scrollfire/jquery.scrollfire.min.js', array('jquery'), '', true );
+	wp_enqueue_script( 'spr-scrollfire-js', get_template_directory_uri() . '/inc/vendors/scrollfire/jquery.scrollfire.min.js', array('jquery'), '', true );
 
 	
 	//CSS
-	wp_enqueue_style( 'overbuilt_resume-default', get_template_directory_uri() . '/inc/css/theme-default.min.css' );
-	wp_enqueue_style( 'overbuilt_resume-style', get_stylesheet_uri() );
+	wp_enqueue_style( 'spr-default', get_template_directory_uri() . '/inc/css/theme-default.min.css' );
+	wp_enqueue_style( 'spr-style', get_stylesheet_uri() );
 	
 	//JS
-	wp_enqueue_script( 'overbuilt_resume-app', get_template_directory_uri() . '/inc/js/app.min.js', array('jquery'), '', true );
+	wp_enqueue_script( 'spr-app', get_template_directory_uri() . '/inc/js/app.min.js', array('jquery'), '', true );
 
 }
-add_action( 'wp_enqueue_scripts', 'overbuilt_resume_scripts' );
+add_action( 'wp_enqueue_scripts', 'spr_scripts' );
 
 
 
@@ -188,7 +188,7 @@ add_action( 'wp_enqueue_scripts', 'overbuilt_resume_scripts' );
   Since this is meant to be a single page site, there's no need to allow access
   to any pages other than the homepage.
   
-  @since overbuilt_resume 0.1.0
+  @since spr 0.1.0
 ======================================================================================*/
 function redirect_all_to_home()
 {
@@ -209,7 +209,7 @@ add_action( 'template_redirect', 'redirect_all_to_home' );
   Some default wordpress menu options aren't relevant for this particular project,
   so I'm cleaning up the admin menu for the sake of it. I like the cleaner look.
   
-  @since overbuilt_resume 0.1.0
+  @since spr 0.1.0
 ======================================================================================*/
 function remove_unused_menu_pages() {
     remove_menu_page( 'edit.php' );                   //Posts
@@ -224,7 +224,7 @@ add_action( 'admin_menu', 'remove_unused_menu_pages' );
 
 /*=====================================================================================
   Custom Classes
-  @since overbuilt_resume 0.1.0
+  @since spr 0.1.0
 ======================================================================================*/
 /*
  * Singleton style self instantiated classes 

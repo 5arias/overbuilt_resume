@@ -4,7 +4,7 @@
  *
  * @link https://codex.wordpress.org/Template_Hierarchy
  *
- * @package Overbuilt_Resume
+ * @package WP_Single_Page_Resume
  */
 
 ?>
@@ -35,7 +35,7 @@
 		
 			<div id="theme-repo" class="text-center">
 				<p><em>This custom theme is built on Foundation for Sites</em></p>
-				<p><a href="https://github.com/5arias/overbuilt_resume" class="button" target="_blank">View on <i class="fa fa-github"></i> Github</a></p>
+				<p><a href="https://github.com/5arias/wp_single_page_resume" class="button" target="_blank">View on <i class="fa fa-github"></i> Github</a></p>
 			</div>
 			
 		</div><!-- #skills-wrap -->

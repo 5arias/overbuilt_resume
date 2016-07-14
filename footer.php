@@ -6,7 +6,7 @@
  *
  * @link https://developer.wordpress.org/themes/basics/template-files/#template-partials
  *
- * @package Overbuilt_Resume
+ * @package WP_Single_Page_Resume
  */
 
 ?>
@@ -15,7 +15,7 @@
 
 	<footer id="colophon" class="site-footer" role="contentinfo">
 		<div class="site-info text-center">
-			<?php printf( esc_html__( ' %s &copy; %s', 'overbuilt_resume' ), date('Y'), '<a href="https://www.stephenbrody.com" rel="designer">Stephen Brody</a>' ); ?>
+			<?php printf( esc_html__( ' %s &copy; %s', 'spr' ), date('Y'), '<a href="https://www.stephenbrody.com" rel="designer">Stephen Brody</a>' ); ?>
 		</div><!-- .site-info -->
 	</footer><!-- #colophon -->
 </div><!-- #page -->

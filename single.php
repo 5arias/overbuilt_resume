@@ -4,7 +4,7 @@
  *
  * @link https://developer.wordpress.org/themes/basics/template-hierarchy/#single-post
  *
- * @package Overbuilt_Resume
+ * @package WP_Single_Page_Resume
  */
 
 get_header(); ?>

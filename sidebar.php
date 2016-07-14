@@ -4,7 +4,7 @@
  *
  * @link https://developer.wordpress.org/themes/basics/template-files/#template-partials
  *
- * @package Overbuilt_Resume
+ * @package WP_Single_Page_Resume
  */
 
 if ( ! is_active_sidebar( 'sidebar-1' ) ) {

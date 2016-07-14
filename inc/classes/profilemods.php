@@ -142,15 +142,15 @@ class ProfileMods {
 				<td><input type="number" name="age" id="age" value="<?php echo esc_attr( get_the_author_meta( 'age', $user->ID ) ); ?>" step="1" /></td>
 			</tr>
 			<tr class="user-met-image-wrap">
-	            <th><label for="user_meta_image"><?php _e( 'Profile Picture', 'overbuilt_resume' ); ?></label></th>
+	            <th><label for="user_meta_image"><?php _e( 'Profile Picture', 'spr' ); ?></label></th>
 	            <td>
 	                <!-- Outputs the image after save -->
 	                <img id="user_meta_image_preview" class="add_meta_image_preview" src="<?php $attach_id = get_the_author_meta( 'user_meta_image', $user->ID ); echo wp_get_attachment_image_url($attach_id, 'medium'); ?>" style="max-width: 150px;"><br />
 	                <!-- Outputs the text field and displays the URL of the image retrieved by the media uploader -->
 	                <input type="hidden" name="user_meta_image" id="user_meta_image" class="add_meta_image" value="<?php echo absint( get_the_author_meta( 'user_meta_image', $user->ID ) ); ?>" class="regular-text" />
 	                <!-- Outputs the save button -->
-	                <input type='button' class="upload-meta-image button-primary" value="<?php _e( 'Upload Image', 'overbuilt_resume' ); ?>" id="uploadimage"/><br />
-	                <span class="description"><?php _e( 'Upload an image for your user profile.', 'overbuilt_resume' ); ?></span>
+	                <input type='button' class="upload-meta-image button-primary" value="<?php _e( 'Upload Image', 'spr' ); ?>" id="uploadimage"/><br />
+	                <span class="description"><?php _e( 'Upload an image for your user profile.', 'spr' ); ?></span>
 	            </td>
 	        </tr>
 	

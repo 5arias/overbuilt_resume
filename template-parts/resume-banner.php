@@ -4,7 +4,7 @@
  *
  * @link https://codex.wordpress.org/Template_Hierarchy
  *
- * @package Overbuilt_Resume
+ * @package WP_Single_Page_Resume
  */
 
 ?>
