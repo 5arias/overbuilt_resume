@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/5arias/wp_single_page_resume.svg?branch=master)](https://travis-ci.org/5arias/wp_single_page_resume)
+
 
 My Single Page Resume Wordpress Theme
 ===
